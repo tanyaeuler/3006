@@ -57,10 +57,33 @@ const STATUS_BADGE = {
 export default function PlatformCard({ platformKey, status, onLearnMore }) {
   const config = PLATFORM_CONFIG[platformKey]
   const badge = STATUS_BADGE[status] || STATUS_BADGE.not_sure
-  const [checked, setChecked] = useState([false, false, false])
+
+  const storageKey = `dashboard_checklist_${platformKey}`
+  const itemCount = config.checklist.length
+
+  const [checked, setChecked] = useState(() => {
+    try {
+      const stored = localStorage.getItem(storageKey)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (Array.isArray(parsed) && parsed.length === itemCount) return parsed
+      }
+    } catch {
+      // ignore parse errors or unavailable storage
+    }
+    return Array(itemCount).fill(false)
+  })
 
   function toggle(i) {
-    setChecked(c => c.map((v, idx) => (idx === i ? !v : v)))
+    setChecked(prev => {
+      const next = prev.map((v, idx) => (idx === i ? !v : v))
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(next))
+      } catch {
+        // ignore storage errors
+      }
+      return next
+    })
   }
 
   return (
