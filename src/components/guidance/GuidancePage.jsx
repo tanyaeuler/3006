@@ -2,6 +2,32 @@ import { useState } from 'react'
 import Button from '../ui/Button'
 import { PLATFORM_URLS } from '../../lib/visibility'
 
+function useLocalStorageSet(key) {
+  const [set, setSet] = useState(() => {
+    try {
+      const stored = localStorage.getItem(key)
+      return stored ? new Set(JSON.parse(stored)) : new Set()
+    } catch {
+      return new Set()
+    }
+  })
+
+  function toggle(id) {
+    setSet(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      try {
+        localStorage.setItem(key, JSON.stringify([...next]))
+      } catch {
+        // storage quota exceeded or private browsing — silently continue
+      }
+      return next
+    })
+  }
+
+  return [set, toggle]
+}
+
 const GUIDANCE_CONTENT = {
   google: {
     name: 'Google Business Profile',
@@ -77,15 +103,7 @@ const GUIDANCE_CONTENT = {
 
 export default function GuidancePage({ platformKey, onBack }) {
   const content = GUIDANCE_CONTENT[platformKey]
-  const [checked, setChecked] = useState(() => new Set())
-
-  function toggle(id) {
-    setChecked(prev => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
-  }
+  const [checked, toggle] = useLocalStorageSet(`checklist_${platformKey}`)
 
   const progress = Math.round((checked.size / content.steps.length) * 100)
 
