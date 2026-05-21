@@ -49,14 +49,14 @@ const PLATFORM_CONFIG = {
 }
 
 const STATUS_BADGE = {
-  claimed: { bg: 'bg-green-100', text: 'text-green-700', label: 'Claimed' },
-  unclaimed: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Needs claiming' },
-  not_found: { bg: 'bg-red-100', text: 'text-red-700', label: 'Not listed' },
+  active: { bg: 'bg-green-100', text: 'text-green-700', label: 'Active' },
+  not_setup: { bg: 'bg-red-100', text: 'text-red-700', label: 'Not set up' },
+  not_sure: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Needs checking' },
 }
 
 export default function PlatformCard({ platformKey, status, onLearnMore }) {
   const config = PLATFORM_CONFIG[platformKey]
-  const badge = STATUS_BADGE[status] || STATUS_BADGE.unclaimed
+  const badge = STATUS_BADGE[status] || STATUS_BADGE.not_sure
   const [checked, setChecked] = useState([false, false, false])
 
   function toggle(i) {

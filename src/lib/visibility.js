@@ -1,11 +1,13 @@
 export function calcVisibilityScore(business, platformStatuses) {
   let score = 0
 
-  // Platform claimed points (20 each, max 60)
+  // Platform points (20 each, max 60)
   const platforms = ['google', 'apple', 'bing']
   platforms.forEach(p => {
-    if (platformStatuses?.[p] === 'claimed') score += 20
-    else if (platformStatuses?.[p] === 'unclaimed') score += 5
+    const s = platformStatuses?.[p]
+    if (s === 'active') score += 20
+    else if (s === 'not_sure') score += 5
+    // 'not_setup' contributes 0
   })
 
   // Business info completeness (40 points total)
@@ -26,14 +28,27 @@ export function getScoreLabel(score) {
 export function getPriorityActions(business, platformStatuses) {
   const actions = []
 
-  if (platformStatuses?.google !== 'claimed') {
-    actions.push({ id: 'google', text: 'Claim your Google Business Profile — this is the most important step for showing up in search.' })
+  const googleStatus = platformStatuses?.google
+  const appleStatus = platformStatuses?.apple
+  const bingStatus = platformStatuses?.bing
+
+  if (googleStatus !== 'active') {
+    const text = googleStatus === 'not_setup'
+      ? 'Create your Google Business Profile — this is the single most important thing you can do to show up in search.'
+      : 'Check and claim your Google Business Profile — this is the most important step for showing up in search.'
+    actions.push({ id: 'google', text })
   }
-  if (platformStatuses?.apple !== 'claimed') {
-    actions.push({ id: 'apple', text: 'Add your business to Apple Maps so iPhone users can find you easily.' })
+  if (appleStatus !== 'active') {
+    const text = appleStatus === 'not_setup'
+      ? 'Create your Apple Maps listing so the millions of Australians with iPhones can find you.'
+      : 'Check and claim your Apple Maps listing so iPhone users can find you easily.'
+    actions.push({ id: 'apple', text })
   }
-  if (platformStatuses?.bing !== 'claimed') {
-    actions.push({ id: 'bing', text: 'Claim your Bing Places listing to reach more customers using Windows and Cortana.' })
+  if (bingStatus !== 'active') {
+    const text = bingStatus === 'not_setup'
+      ? 'Create your Bing Places listing — it also puts you in front of Microsoft Copilot and ChatGPT users.'
+      : 'Check and claim your Bing Places listing to reach customers on Windows and AI search tools.'
+    actions.push({ id: 'bing', text })
   }
   if (!business?.website?.trim()) {
     actions.push({ id: 'website', text: 'Add your website URL — it helps all platforms verify and rank your business.' })
