@@ -1,9 +1,22 @@
 import { useState } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import OnboardingPage from './pages/OnboardingPage'
 import DashboardPage from './pages/DashboardPage'
 import GuidancePage from './components/guidance/GuidancePage'
+import CamperBookingPage from './pages/CamperBookingPage'
 
 export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<BusinessApp />} />
+        <Route path="/booking" element={<CamperBookingPage />} />
+      </Routes>
+    </BrowserRouter>
+  )
+}
+
+function BusinessApp() {
   const [screen, setScreen] = useState('onboarding') // 'onboarding' | 'dashboard' | 'guidance'
   const [business, setBusiness] = useState(null)
   const [platformStatuses, setPlatformStatuses] = useState(null)

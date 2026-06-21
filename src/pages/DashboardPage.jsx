@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import PlatformCard from '../components/dashboard/PlatformCard'
 import VisibilityScore from '../components/dashboard/VisibilityScore'
 
@@ -16,9 +17,14 @@ export default function DashboardPage({ business, platformStatuses, onLearnMore 
             </div>
             <span className="font-bold text-gray-900 text-sm hidden sm:block">Local Business Command Centre</span>
           </div>
-          <div className="text-right">
-            <div className="font-bold text-gray-900 text-sm">{business.name}</div>
-            <div className="text-xs text-gray-500 truncate max-w-40">{business.address}</div>
+          <div className="flex items-center gap-4">
+            <Link to="/booking" className="text-xs font-semibold text-blue-600 hover:text-blue-700 hidden sm:block">
+              🚐 Camper bookings
+            </Link>
+            <div className="text-right">
+              <div className="font-bold text-gray-900 text-sm">{business.name}</div>
+              <div className="text-xs text-gray-500 truncate max-w-40">{business.address}</div>
+            </div>
           </div>
         </div>
       </header>
