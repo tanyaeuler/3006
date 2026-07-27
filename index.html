@@ -25,12 +25,22 @@
     <meta property="og:image" content="https://tanyaeuler.com/images/og-default.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <!-- Poppins, the brand typeface. Preconnect keeps the request cheap. -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Poppins is self-hosted from /public/fonts (see src/styles/fonts.css),
+         so there is no third-party font request on page load. Preloading the
+         two most-used faces avoids a flash of fallback text. -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      href="/fonts/poppins-normal-300-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/poppins-normal-400-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
     />
   </head>
   <body>

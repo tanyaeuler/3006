@@ -66,11 +66,37 @@ one block.
 | Olive | `#6F7B44` |
 | Blush | `#DDB09C` |
 | Brown | `#806038` |
-| Type | Poppins (loaded from Google Fonts in `index.html`) |
+| Type | Poppins — self-hosted, see below |
 
 Everything else — the cream page background, the deep brown feature bands, the
 hairline borders — is a tint or shade derived from those three, so the palette
 stays coherent if you adjust one.
+
+### Fonts
+
+Poppins is **self-hosted**, not loaded from Google Fonts: the Latin and
+Latin-Extended subsets (12 faces, ~108 KB total) live in `public/fonts`, with
+the `@font-face` rules in `src/styles/fonts.css`. That means no third-party
+request on page load — faster first paint, nothing disclosed to Google about
+who visits, and no dependency on fonts.googleapis.com being reachable. Poppins
+is licensed under the SIL Open Font License 1.1 (`public/fonts/OFL.txt`).
+
+## Preview build
+
+`scripts/build-preview.mjs` bundles the site into one self-contained HTML file
+— CSS, JS, fonts and favicon all inlined — for sharing a link or opening
+straight off disk with no server:
+
+```bash
+VITE_HASH_ROUTER=1 npm run build && node scripts/build-preview.mjs
+```
+
+It writes two files to `preview/` (git-ignored): a full standalone document,
+and a fragment for hosts that supply their own HTML skeleton.
+
+`VITE_HASH_ROUTER` switches the app to hash URLs (`#/journal`), because a
+standalone file has no server to rewrite unmatched paths. The deployed site
+keeps clean URLs — see `src/main.jsx`.
 
 ## Images
 
