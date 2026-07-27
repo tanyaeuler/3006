@@ -1,36 +1,56 @@
-export default function Button({
-  children,
-  onClick,
-  type = 'button',
-  variant = 'primary',
-  size = 'md',
-  disabled = false,
-  className = '',
-  ...props
-}) {
-  const base = 'inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
+import { Link } from 'react-router-dom'
 
-  const variants = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 shadow-sm',
-    secondary: 'bg-white text-blue-600 border-2 border-blue-600 hover:bg-blue-50 focus:ring-blue-500',
-    ghost: 'text-blue-600 hover:bg-blue-50 focus:ring-blue-500',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
+// The live site uses a solid olive rectangle with light, wide-tracked type.
+const base =
+  'inline-flex items-center justify-center gap-2 px-7 py-3 text-xs uppercase tracking-eyebrow font-medium transition-colors duration-200 rounded-sm'
+
+const variants = {
+  primary: 'bg-olive text-cream hover:bg-olive-dark',
+  outline: 'border border-olive text-olive hover:bg-olive hover:text-cream',
+  blush: 'bg-blush text-brown-dark hover:bg-blush-light',
+  onDeep: 'bg-blush text-brown-dark hover:bg-cream',
+  ghostOnDeep:
+    'border border-blush/60 text-on-deep hover:bg-blush hover:text-brown-dark hover:border-blush',
+}
+
+/**
+ * Renders a react-router <Link> for internal `to`, an <a> for external `href`,
+ * and a <button> otherwise — so callers never have to think about it.
+ */
+export default function Button({
+  to,
+  href,
+  variant = 'primary',
+  className = '',
+  children,
+  ...rest
+}) {
+  const classes = `${base} ${variants[variant] ?? variants.primary} ${className}`
+
+  if (to) {
+    return (
+      <Link to={to} className={classes} {...rest}>
+        {children}
+      </Link>
+    )
   }
 
-  const sizes = {
-    sm: 'px-4 py-2 text-sm',
-    md: 'px-6 py-3 text-base',
-    lg: 'px-8 py-4 text-lg',
+  if (href) {
+    const external = /^https?:\/\//.test(href)
+    return (
+      <a
+        href={href}
+        className={classes}
+        {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+        {...rest}
+      >
+        {children}
+      </a>
+    )
   }
 
   return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      className={`${base} ${variants[variant]} ${sizes[size]} ${className}`}
-      {...props}
-    >
+    <button type="button" className={classes} {...rest}>
       {children}
     </button>
   )

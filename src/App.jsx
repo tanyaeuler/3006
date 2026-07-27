@@ -1,47 +1,28 @@
-import { useState } from 'react'
-import OnboardingPage from './pages/OnboardingPage'
-import DashboardPage from './pages/DashboardPage'
-import GuidancePage from './components/guidance/GuidancePage'
+import { Route, Routes } from 'react-router-dom'
+
+import Layout from './components/layout/Layout'
+import AboutPage from './pages/AboutPage'
+import ContactPage from './pages/ContactPage'
+import FaithPage from './pages/FaithPage'
+import HomePage from './pages/HomePage'
+import JournalPage from './pages/JournalPage'
+import NotFoundPage from './pages/NotFoundPage'
+import PostPage from './pages/PostPage'
+import WorkPage from './pages/WorkPage'
 
 export default function App() {
-  const [screen, setScreen] = useState('onboarding') // 'onboarding' | 'dashboard' | 'guidance'
-  const [business, setBusiness] = useState(null)
-  const [platformStatuses, setPlatformStatuses] = useState(null)
-  const [guidancePlatform, setGuidancePlatform] = useState(null)
-
-  function handleOnboardingComplete(biz, statuses) {
-    setBusiness(biz)
-    setPlatformStatuses(statuses)
-    setScreen('dashboard')
-  }
-
-  function handleLearnMore(platformKey) {
-    setGuidancePlatform(platformKey)
-    setScreen('guidance')
-  }
-
-  function handleBackToDashboard() {
-    setScreen('dashboard')
-  }
-
-  if (screen === 'onboarding') {
-    return <OnboardingPage onComplete={handleOnboardingComplete} />
-  }
-
-  if (screen === 'guidance' && guidancePlatform) {
-    return (
-      <GuidancePage
-        platformKey={guidancePlatform}
-        onBack={handleBackToDashboard}
-      />
-    )
-  }
-
   return (
-    <DashboardPage
-      business={business}
-      platformStatuses={platformStatuses}
-      onLearnMore={handleLearnMore}
-    />
+    <Routes>
+      <Route element={<Layout />}>
+        <Route index element={<HomePage />} />
+        <Route path="about" element={<AboutPage />} />
+        <Route path="work" element={<WorkPage />} />
+        <Route path="faith" element={<FaithPage />} />
+        <Route path="journal" element={<JournalPage />} />
+        <Route path="journal/:slug" element={<PostPage />} />
+        <Route path="contact" element={<ContactPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
   )
 }

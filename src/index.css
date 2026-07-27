@@ -1,19 +1,96 @@
+@import './styles/theme.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     margin: 0;
-    font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--font-body);
+    background-color: var(--surface-page);
+    color: var(--text-body);
+    font-weight: 400;
+    line-height: 1.7;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #f8fafc;
-    color: #1e293b;
   }
 
   #root {
     width: 100%;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Display headings use the light Poppins weight seen on the live site. */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    letter-spacing: var(--tracking-display);
+    line-height: 1.2;
+    color: var(--text-heading);
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--text-heading);
+  }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--link-hover);
+  }
+
+  /* Visible, on-brand focus ring for keyboard users. */
+  :focus-visible {
+    outline: 2px solid var(--brand-olive);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+@layer components {
+  /* Small uppercase label above a heading — a signature of the brand. */
+  .eyebrow {
+    @apply font-body text-xs uppercase tracking-eyebrow text-brown;
+    font-weight: 500;
+  }
+
+  .eyebrow-on-deep {
+    @apply font-body text-xs uppercase tracking-eyebrow text-blush;
+    font-weight: 500;
+  }
+
+  /* Short rule used to separate an eyebrow from its heading. */
+  .rule {
+    @apply block h-px w-12 bg-olive-light;
+  }
+
+  /* Blush highlight that fills in on hover. */
+  .link-underline {
+    background-image: linear-gradient(var(--brand-blush), var(--brand-blush));
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 100% 2px;
+    transition: background-size 0.25s ease;
+  }
+
+  .link-underline:hover {
+    background-size: 100% 100%;
   }
 }

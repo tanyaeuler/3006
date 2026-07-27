@@ -1,0 +1,102 @@
+/* ==========================================================================
+   TanyaEuler.com — brand theme tokens
+   --------------------------------------------------------------------------
+   THIS IS THE ONLY FILE YOU NEED TO EDIT TO RE-SKIN THE WHOLE SITE.
+
+   Every colour, font and radius used anywhere resolves back to a variable
+   declared here. Tailwind maps these onto utility classes (see
+   tailwind.config.js) so `bg-cream`, `text-olive`, `border-blush` etc. all
+   follow whatever you set below.
+
+   Brand palette as supplied:
+     Olive  #6F7B44
+     Blush  #DDB09C
+     Brown  #806038
+     Type   Poppins
+   ========================================================================== */
+
+:root {
+  /* ---- CORE BRAND ------------------------------------------------------ */
+
+  --brand-olive: #6f7b44;
+  --brand-blush: #ddb09c;
+  --brand-brown: #806038;
+
+  /* ---- DERIVED TINTS & SHADES -----------------------------------------
+     Tonal steps built from the three core colours, so the palette stays
+     coherent. Adjust only if the brand guide specifies exact secondaries. */
+
+  --brand-olive-dark: #55602f; /* pressed states, deep olive type        */
+  --brand-olive-mid: #7f8b52; /* hover on olive fills                    */
+  --brand-olive-light: #a8b184; /* rules, dividers on cream              */
+  --brand-olive-wash: #eef0e5; /* pale olive section band                */
+
+  --brand-blush-light: #ecd2c4; /* soft cards, badges                    */
+  --brand-blush-wash: #f7ece5; /* blush section band                     */
+
+  --brand-brown-dark: #3b3123; /* deep feature sections + footer         */
+  --brand-brown-mid: #5d4728; /* gradient partner for the deep band      */
+
+  --brand-cream: #fbf9f5; /* page background                             */
+  --brand-ink: #33302a; /* body text                                     */
+  --brand-muted: #7a7368; /* captions, metadata, secondary text          */
+  --brand-line: #e7e0d5; /* hairline borders                            */
+
+  /* ---- SEMANTIC SURFACES ----------------------------------------------- */
+
+  --surface-page: var(--brand-cream);
+  --surface-raised: #ffffff;
+  --surface-band: var(--brand-blush-wash);
+  --surface-band-alt: var(--brand-olive-wash);
+  --surface-deep: var(--brand-brown-dark);
+
+  --text-body: var(--brand-ink);
+  --text-muted: var(--brand-muted);
+  --text-heading: var(--brand-olive);
+  --text-on-deep: #f4efe7;
+  --text-on-deep-muted: #cbc0ac;
+
+  --link: var(--brand-olive);
+  --link-hover: var(--brand-brown);
+
+  /* ---- TYPOGRAPHY ------------------------------------------------------
+     Poppins is loaded from Google Fonts in index.html. The fallback stack
+     keeps metrics close if the font request fails or is still in flight. */
+
+  --font-body: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-body);
+
+  /* The live site uses a light weight for large display headings and wide
+     letter-spacing on small uppercase "eyebrow" labels. */
+  --weight-display: 300;
+  --tracking-eyebrow: 0.22em;
+  --tracking-display: -0.01em;
+
+  /* ---- SHAPE & DEPTH ---------------------------------------------------- */
+
+  --radius-sm: 3px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1px 2px rgb(59 49 35 / 4%), 0 10px 28px -14px rgb(59 49 35 / 20%);
+  --shadow-lift: 0 2px 6px rgb(59 49 35 / 7%), 0 22px 46px -18px rgb(59 49 35 / 30%);
+
+  /* ---- LAYOUT ----------------------------------------------------------- */
+
+  --container-max: 1140px;
+  --measure: 68ch; /* comfortable reading width for long-form posts */
+}
+
+/* Respect users who ask for reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
