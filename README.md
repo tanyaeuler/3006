@@ -2,6 +2,13 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## Asset inspection project map
+
+A standalone interactive map of inspected assets lives at
+`public/project-map.html` and is served at `/project-map.html`. See
+[docs/project-map.md](docs/project-map.md) for what it does and how to refresh
+the data from the source spreadsheet.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
