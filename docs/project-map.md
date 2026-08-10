@@ -27,8 +27,30 @@ production build, because Vite copies `public/` through untouched.
 - **Responsive layout** — on phones the projects panel collapses into a bottom
   sheet behind a "Projects" button.
 
-Leaflet 1.9.4 is loaded from unpkg with subresource-integrity hashes; there is
-no build step and no other dependency.
+## Files the page needs
+
+Leaflet 1.9.4 is served from alongside the page rather than a CDN, so these
+travel together — copying `project-map.html` on its own will leave you with an
+unstyled, non-functioning page:
+
+```
+project-map.html
+leaflet.css
+leaflet.js
+images/          (referenced by leaflet.css)
+```
+
+The vendored `leaflet.css` and `leaflet.js` are the unmodified 1.9.4 release
+files and match the published SRI hashes
+(`sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=` and
+`sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=`). To upgrade Leaflet,
+replace all four items from the matching release and update those hashes here.
+
+There is no build step and no other dependency. The one thing still fetched
+from elsewhere at runtime is **map tiles** — the light basemap comes from CARTO
+and the satellite imagery from Esri. A slippy map has to fetch imagery from a
+tile server; the only way to remove that dependency entirely would be to host
+your own tiles and point the two `L.tileLayer` URLs at them.
 
 ## Headline figures
 
