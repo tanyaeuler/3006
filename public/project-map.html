@@ -85,32 +85,7 @@
   .panel-head h2 { margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -.01em; }
   .panel-head .tally { margin-left: auto; font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
 
-  .search {
-    position: relative;
-    padding: 0 18px 12px;
-  }
-  .search input {
-    width: 100%;
-    font: inherit;
-    font-size: 13px;
-    padding: 9px 30px 9px 32px;
-    color: var(--ink);
-    background: #F6F8FC;
-    border: 1px solid var(--line);
-    border-radius: 9px;
-    outline: none;
-  }
-  .search input:focus { border-color: #A9BDE6; background: #fff; box-shadow: 0 0 0 3px rgba(27, 109, 224, .14); }
-  .search svg { position: absolute; left: 28px; top: 50%; transform: translateY(-60%); width: 14px; height: 14px; color: var(--ink-soft); pointer-events: none; }
-  .search .clear {
-    position: absolute; right: 26px; top: 50%; transform: translateY(-60%);
-    width: 18px; height: 18px; line-height: 16px; text-align: center;
-    border: 0; border-radius: 50%; cursor: pointer;
-    background: #D9E0EE; color: #46527A; font-size: 13px; padding: 0;
-  }
-  .search .clear[hidden] { display: none; }
-
-  .scroller { overflow-y: auto; overscroll-behavior: contain; padding: 0 8px 4px; }
+  .scroller { overflow-y: auto; overscroll-behavior: contain; padding: 4px 8px; }
 
   .legend { list-style: none; margin: 0; padding: 0 10px; }
   .legend li { border-radius: 9px; }
@@ -132,7 +107,8 @@
   }
   .row:hover { background: #F2F5FB; }
   .row .dot { width: 13px; height: 13px; border-radius: 50%; flex: 0 0 auto; box-shadow: 0 0 0 2px #fff, 0 0 0 3px rgba(14, 27, 57, .1); }
-  .row .label { font-size: 13.5px; font-weight: 600; flex: 1 1 auto; }
+  .row .label { font-size: 13.5px; font-weight: 600; flex: 1 1 auto; line-height: 1.3; }
+  .row .label .note { font-weight: 500; font-size: 12px; color: var(--ink-soft); white-space: nowrap; }
   .row .n { font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
   .row.off { opacity: .42; }
   .row.off .dot { background: #C6CEDF !important; }
@@ -178,24 +154,12 @@
   }
   .panel-foot button:hover { background: #ECF1FA; color: var(--ink); }
 
-  /* ---------- Search results ---------- */
-
-  .results { list-style: none; margin: 0; padding: 0 10px 6px; }
-  .results li + li { margin-top: 1px; }
-  .results .row { align-items: flex-start; }
-  .results .dot { margin-top: 3px; width: 9px; height: 9px; }
-  .results .label { font-weight: 500; font-size: 13px; line-height: 1.3; }
-  .results .label small { display: block; font-size: 11px; color: var(--ink-soft); font-weight: 500; margin-top: 1px; }
-  .results mark { background: #FFF0B8; color: inherit; border-radius: 2px; }
-  .empty { padding: 4px 18px 14px; font-size: 12.5px; color: var(--ink-soft); }
-
   /* ---------- Popups ---------- */
 
   .leaflet-popup-content-wrapper { border-radius: 12px; box-shadow: var(--shadow); }
-  .leaflet-popup-content { margin: 13px 15px; font-size: 13px; line-height: 1.45; min-width: 190px; }
-  .pop-project { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft); }
-  .pop-project i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
-  .pop-name { margin: 5px 0 6px; font-size: 14.5px; font-weight: 700; line-height: 1.25; }
+  .leaflet-popup-content { margin: 13px 15px; font-size: 13px; line-height: 1.45; min-width: 180px; }
+  .pop-name { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; font-size: 14.5px; font-weight: 700; line-height: 1.25; }
+  .pop-name i { width: 11px; height: 11px; border-radius: 50%; flex: 0 0 auto; }
   .pop-coords { color: var(--ink-soft); font-variant-numeric: tabular-nums; font-size: 12px; }
   .pop-note { margin-top: 7px; padding: 6px 8px; border-radius: 7px; background: #FFF6E5; color: #7A5310; font-size: 11.5px; line-height: 1.4; }
   .pop-links { margin-top: 9px; display: flex; gap: 12px; }
@@ -299,18 +263,8 @@
     <span class="tally" id="tally"></span>
   </div>
 
-  <div class="search">
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
-      <circle cx="7" cy="7" r="4.6"></circle><path d="M10.4 10.4 14 14" stroke-linecap="round"></path>
-    </svg>
-    <input id="search" type="search" placeholder="Search assets…" autocomplete="off" aria-label="Search assets by name">
-    <button class="clear" id="searchClear" hidden aria-label="Clear search">&times;</button>
-  </div>
-
   <div class="scroller" id="scroller">
     <ul class="legend" id="legend"></ul>
-    <ul class="results" id="results" hidden></ul>
-    <p class="empty" id="empty" hidden>No assets match that search.</p>
   </div>
 
   <div class="corridor-row" id="corridorRow">
@@ -330,14 +284,13 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-/* ASSET-DATA:START */
+/* MAP-DATA:START */
 const PROJECTS = [
   {
     "name": "Ports NSW",
     "colour": "#1B6DE0",
     "assets": [
       {
-        "n": "Mainline Rd Bridge",
         "lat": -33.900017,
         "lng": 151.071581
       }
@@ -348,317 +301,254 @@ const PROJECTS = [
     "colour": "#1B6E3B",
     "assets": [
       {
-        "n": "Tunnel drain",
         "lat": -33.476993,
         "lng": 150.211818
       },
       {
-        "n": "Viewing platform 1",
         "lat": -33.477274,
         "lng": 150.212468
       },
       {
-        "n": "Retaining wall 1",
         "lat": -33.476786,
         "lng": 150.210665
       },
       {
-        "n": "Retaining wall 2",
         "lat": -33.483973,
         "lng": 150.207392
       },
       {
-        "n": "Culvert T8",
         "lat": -33.483578,
         "lng": 150.203681
       },
       {
-        "n": "Culvert T9",
         "lat": -33.480825,
         "lng": 150.202715
       },
       {
-        "n": "Culvert T10",
         "lat": -33.479802,
         "lng": 150.202608
       },
       {
-        "n": "Culvert T14",
         "lat": -33.473865,
         "lng": 150.201483
       },
       {
-        "n": "Culvert T13",
         "lat": -33.475702,
         "lng": 150.201647
       },
       {
-        "n": "Culvert T15",
         "lat": -33.472202,
         "lng": 150.200713
       },
       {
-        "n": "Culvert T16",
         "lat": -33.471621,
         "lng": 150.200273
       },
       {
-        "n": "Culvert T17",
         "lat": -33.471282,
         "lng": 150.199586
       },
       {
-        "n": "Culvert T18",
         "lat": -33.471256,
         "lng": 150.198675
       },
       {
-        "n": "Culvert T7",
         "lat": -33.483837,
         "lng": 150.203891
       },
       {
-        "n": "Culvert T20",
         "lat": -33.472191,
         "lng": 150.195503
       },
       {
-        "n": "Culvert T21",
         "lat": -33.471032,
         "lng": 150.193357
       },
       {
-        "n": "Culvert TP1",
         "lat": -33.469949,
         "lng": 150.191423
       },
       {
-        "n": "Culvert TP2",
         "lat": -33.471199,
         "lng": 150.189533
       },
       {
-        "n": "Culvert TP3",
         "lat": -33.471728,
         "lng": 150.189673
       },
       {
-        "n": "Culvert TP4",
         "lat": -33.472353,
         "lng": 150.190211
       },
       {
-        "n": "Retaining wall 3",
         "lat": -33.470041,
         "lng": 150.19172
       },
       {
-        "n": "Culvert M6",
         "lat": -33.47214,
         "lng": 150.201524
       },
       {
-        "n": "Culvert BP4",
         "lat": -33.472503,
         "lng": 150.20217
       },
       {
-        "n": "Retaining wall 4",
         "lat": -33.469896,
         "lng": 150.191173
       },
       {
-        "n": "Culvert M3",
         "lat": -33.471293,
         "lng": 150.197488
       },
       {
-        "n": "Culvert BP1",
         "lat": -33.473061,
         "lng": 150.202359
       },
       {
-        "n": "Dam",
         "lat": -33.476164,
         "lng": 150.202562
       },
       {
-        "n": "Retaining wall 5",
         "lat": -33.471879,
         "lng": 150.197268
       },
       {
-        "n": "No culvert",
         "lat": -33.481076,
         "lng": 150.202876
       },
       {
-        "n": "Timber pedestrian bridge",
         "lat": -33.471617,
         "lng": 150.189665
       },
       {
-        "n": "Culvert BP4",
         "lat": -33.474054,
         "lng": 150.202572
       },
       {
-        "n": "Retaining wall 6",
         "lat": -33.474176,
         "lng": 150.202571
       },
       {
-        "n": "Culvert M5",
         "lat": -33.471616,
         "lng": 150.200958
       },
       {
-        "n": "Platform 8",
         "lat": -33.473279,
         "lng": 150.202487
       },
       {
-        "n": "Retaining Wall 8",
         "lat": -33.472778,
         "lng": 150.202361
       },
       {
-        "n": "Platform 1",
         "lat": -33.477212,
         "lng": 150.221194
       },
       {
-        "n": "Culvert T12",
         "lat": -33.47719,
         "lng": 150.201575
       },
       {
-        "n": "Tunnel 1",
         "lat": -33.478304,
         "lng": 150.217886
       },
       {
-        "n": "Culvert T2",
         "lat": -33.477021,
         "lng": 150.210352
       },
       {
-        "n": "Culvert T4",
         "lat": -33.481313,
         "lng": 150.20727
       },
       {
-        "n": "Culvert T5",
         "lat": -33.483167,
         "lng": 150.207834
       },
       {
-        "n": "Culvert T4a",
         "lat": -33.480884,
         "lng": 150.207342
       },
       {
-        "n": "Culvert T6",
         "lat": -33.484033,
         "lng": 150.203853
       },
       {
-        "n": "Platform 2",
         "lat": -33.482591,
         "lng": 150.20334
       },
       {
-        "n": "Culvert T3",
         "lat": -33.478314,
         "lng": 150.208306
       },
       {
-        "n": "Culvert T7a",
         "lat": -33.482654,
         "lng": 150.203459
       },
       {
-        "n": "Retaining wall 7",
         "lat": -33.473119,
         "lng": 150.202606
       },
       {
-        "n": "Culvert BP3",
         "lat": -33.473433,
         "lng": 150.202337
       },
       {
-        "n": "Culvert T??",
         "lat": -33.482459,
         "lng": 150.203306
       },
       {
-        "n": "Likely a large culvert",
         "lat": -33.47692,
         "lng": 150.201494
       },
       {
-        "n": "Culvert M5",
         "lat": -33.470466,
         "lng": 150.199988
       },
       {
-        "n": "Tunnel 2",
         "lat": -33.470514,
         "lng": 150.198536
       },
       {
-        "n": "Platform 3",
         "lat": -33.471654,
         "lng": 150.197869
       },
       {
-        "n": "Culvert M4",
         "lat": -33.470572,
         "lng": 150.198342
       },
       {
-        "n": "Viaduct 1",
         "lat": -33.471837,
         "lng": 150.197639
       },
       {
-        "n": "Platform 6",
         "lat": -33.471445,
         "lng": 150.189576
       },
       {
-        "n": "Platform 7",
         "lat": -33.471372,
         "lng": 150.197426
       },
       {
-        "n": "Viaduct 3",
         "lat": -33.471803,
         "lng": 150.194943
       },
       {
-        "n": "Viaduct 2",
         "lat": -33.470521,
         "lng": 150.1931
       },
       {
-        "n": "Platform 4",
         "lat": -33.47007,
         "lng": 150.190497
       },
       {
-        "n": "Platform 5",
         "lat": -33.471144,
         "lng": 150.189683
       },
       {
-        "n": "Culvert T1",
         "lat": -33.476984,
         "lng": 150.211437
       },
       {
-        "n": "Viewing platform 2",
         "lat": -33.470909,
         "lng": 150.189337
       }
@@ -669,908 +559,727 @@ const PROJECTS = [
     "colour": "#6A1BB5",
     "assets": [
       {
-        "n": "Beauchamp Falls Bridge (8340)",
         "lat": -38.648838,
         "lng": 143.611568
       },
       {
-        "n": "Fort Ohare Jetty Jetty (21019)",
         "lat": -37.927049,
         "lng": 141.28588
       },
       {
-        "n": "Barlidjaru Trail 1 Bridge (20181)",
         "lat": -38.528431,
         "lng": 143.719955
       },
       {
-        "n": "Barlidjaru Trail 2 Bridge (20185)",
         "lat": -38.530016,
         "lng": 143.723627
       },
       {
-        "n": "Forrest Loop Trail 1 Bridge (20389)",
         "lat": -38.52671,
         "lng": 143.720951
       },
       {
-        "n": "Tiger Rail Trail Bridge (20664)",
         "lat": -38.507705,
         "lng": 143.720457
       },
       {
-        "n": "Beauchamp Viewing Platform (8348)",
         "lat": -38.648838,
         "lng": 143.611568
       },
       {
-        "n": "Stevensons Falls Viewing Platform (20035)",
         "lat": -38.575374,
         "lng": 143.657728
       },
       {
-        "n": "Hammock",
         "lat": -37.70308,
         "lng": 147.58343
       },
       {
-        "n": "Slaughter Walking Track Viewing Platform (11043)",
         "lat": -37.593795,
         "lng": 147.703427
       },
       {
-        "n": "Goongerah Shelter (Former elevated toilet)",
         "lat": -37.34247,
         "lng": 148.70026
       },
       {
-        "n": "Jungle King Mine Historic Relic (10367)",
         "lat": -37.24302,
         "lng": 148.87467
       },
       {
-        "n": "Delegate River Tunnel Walk Upstream Viewing Platform (10930)",
         "lat": -37.377517,
         "lng": 147.11388,
         "note": "Latitude corrected from -373.775 (decimal point appears misplaced in the source data)."
       },
       {
-        "n": "Froam Bridge (6278)",
         "lat": -37.77517,
         "lng": 147.113877
       },
       {
-        "n": "Footbridge 1 Bridge (10877)",
         "lat": -37.563126,
         "lng": 149.74911
       },
       {
-        "n": "Drummer 1 Bridge (5478)",
         "lat": -37.56828,
         "lng": 149.272512
       },
       {
-        "n": "Drummer 2 Bridge (5483)",
         "lat": -37.567396,
         "lng": 149.271835
       },
       {
-        "n": "Drummer 3 Bridge (5491)",
         "lat": -37.566533,
         "lng": 149.269673
       },
       {
-        "n": "Furnell Landing Jetty and Boat Retrieval Jetty Jetty (202922)",
         "lat": -37.722689,
         "lng": 149.136181
       },
       {
-        "n": "Elevated Boardwalk & Stairs (5494)",
         "lat": -37.568369,
         "lng": 149.272527
       },
       {
-        "n": "Viewing Platform (202928)",
         "lat": -37.716938,
         "lng": 149.127537
       },
       {
-        "n": "Viewing Platform (202929)",
         "lat": -37.717524,
         "lng": 149.127645
       },
       {
-        "n": "Elevated Boardwalk/s",
         "lat": -37.716894,
         "lng": 149.127676
       },
       {
-        "n": "Viewing Platform",
         "lat": -37.716554,
         "lng": 149.12766
       },
       {
-        "n": "Three Sisters Lookout Viewing Platform (10185)",
         "lat": -37.355906,
         "lng": 149.09462
       },
       {
-        "n": "Morning Star Walk ? Log Bridge",
         "lat": -37.7529,
         "lng": 146.49594
       },
       {
-        "n": "Bruntons Bridge (Pedestrian Only) Bridge (8074)",
         "lat": -37.99923,
         "lng": 146.47258
       },
       {
-        "n": "Toombon Bridge (5682)",
         "lat": -37.739744,
         "lng": 146.397135
       },
       {
-        "n": "Toilet Block (207529)",
         "lat": -38.38715,
         "lng": 146.273146
       },
       {
-        "n": "Bruntons Bridge Viewing Platform Viewing Platform (202126)",
         "lat": -37.99898,
         "lng": 146.47242
       },
       {
-        "n": "Trestle Bridge Bridge (4491)",
         "lat": -37.90056,
         "lng": 145.984314
       },
       {
-        "n": "Toorongo Falls Bridge (1272)",
         "lat": -37.849104,
         "lng": 146.045826
       },
       {
-        "n": "Amphitheatre Falls Viewing Platform (1270)",
         "lat": -37.843328,
         "lng": 146.048066
       },
       {
-        "n": "Toorongo Falls Viewing Platform (1268)",
         "lat": -37.848201,
         "lng": 146.049762
       },
       {
-        "n": "Ralph Bridge (8084)",
         "lat": -37.891176,
         "lng": 145.996308
       },
       {
-        "n": "Tanjil Bren Bridge (8548)",
         "lat": -37.798218,
         "lng": 146.190899
       },
       {
-        "n": "Discovery 1 Bridge (5007)",
         "lat": -37.770437,
         "lng": 147.925218
       },
       {
-        "n": "Discovery 2 Bridge (5030)",
         "lat": -37.797522,
         "lng": 147.926738
       },
       {
-        "n": "Discovery 3 Bridge (5032)",
         "lat": -37.803978,
         "lng": 147.925981
       },
       {
-        "n": "Discovery 4 Bridge (5033)",
         "lat": -37.80553,
         "lng": 147.926848
       },
       {
-        "n": "Discovery 5 Bridge (5034)",
         "lat": -37.80756,
         "lng": 147.927188
       },
       {
-        "n": "Discovery 6 Bridge (5037)",
         "lat": -37.811132,
         "lng": 147.926278
       },
       {
-        "n": "Stony Creek Trestle Bridge Viewing Platform (10309)",
         "lat": -37.743184,
         "lng": 148.043658
       },
       {
-        "n": "Historic Youngs Creek Reservoir Walk Bridge (10215)",
         "lat": -37.64974,
         "lng": 148.514147
       },
       {
-        "n": "Little Cabbage Tree Creek Falls Walk Bridge (10108)",
         "lat": -37.654063,
         "lng": 148.693673
       },
       {
-        "n": "Loop Track 1 Bridge (5401)",
         "lat": -37.656002,
         "lng": 148.514188
       },
       {
-        "n": "Loop Track 2 Bridge (5402)",
         "lat": -37.655548,
         "lng": 148.51386
       },
       {
-        "n": "Loop Track 3 Bridge (5403)",
         "lat": -37.654361,
         "lng": 148.514045
       },
       {
-        "n": "Loop Track 4 Bridge (Iron Chimney Track)",
         "lat": -37.656006,
         "lng": 148.514982
       },
       {
-        "n": "Historic Youngs Creek Reservoir Walk Historic Relic (10209)",
         "lat": -37.64299,
         "lng": 148.51011
       },
       {
-        "n": "Elevated Boardwalk & Stairs (10208)",
         "lat": -37.643074,
         "lng": 148.510241
       },
       {
-        "n": "Elevated Boardwalk/s",
         "lat": -37.79065,
         "lng": 148.541785
       },
       {
-        "n": "Historic Youngs Creek Reservoir Walk Viewing Platform & Staircase (10210)",
         "lat": -37.643174,
         "lng": 148.510151
       },
       {
-        "n": "Little Cabbage Tree Creek Falls Walk Viewing Platform & Staircase (10106)",
         "lat": -37.655112,
         "lng": 148.693608
       },
       {
-        "n": "Youngs Creek Viewing Platform (5397)",
         "lat": -37.658803,
         "lng": 148.513943
       },
       {
-        "n": "Douglas Reserve Walk Track Steel Boardwalk",
         "lat": -37.225308,
         "lng": 147.919511
       },
       {
-        "n": "Douglas Reserve Walk Bridge Bridge (4896)",
         "lat": -37.225302,
         "lng": 147.919424
       },
       {
-        "n": "anderson Bridge (2112)",
         "lat": -37.432906,
         "lng": 144.431974
       },
       {
-        "n": "Great Dividing Trail Bridge (3373)",
         "lat": -37.453559,
         "lng": 144.2629
       },
       {
-        "n": "lerderderg no 1 Bridge (2052)",
         "lat": -37.468602,
         "lng": 144.28068
       },
       {
-        "n": "lerderderg no 2 Bridge (2055)",
         "lat": -37.468639,
         "lng": 144.284642
       },
       {
-        "n": "lerderderg no 3 Bridge (2057)",
         "lat": -37.468656,
         "lng": 144.28443
       },
       {
-        "n": "Paradise 1 Bridge (2456)",
         "lat": -37.291759,
         "lng": 143.268222
       },
       {
-        "n": "Pioneer Sawmill Bridge (206946)",
         "lat": -37.449993,
         "lng": 144.23764
       },
       {
-        "n": "Werribee River No. 1 Bridge (1998)",
         "lat": -37.50733,
         "lng": 144.165613
       },
       {
-        "n": "Werribee River No. 2 Bridge (203402)",
         "lat": -37.499495,
         "lng": 144.170402
       },
       {
-        "n": "Werribee River No. 3 Bridge (1981)",
         "lat": -37.50821,
         "lng": 144.17134
       },
       {
-        "n": "Whipstick Loop Bridge (20763)",
         "lat": -37.479402,
         "lng": 144.29017
       },
       {
-        "n": "Whipstick Loop Bridge (20764)",
         "lat": -37.479657,
         "lng": 144.289575
       },
       {
-        "n": "Whipstick Loop Bridge (20765)",
         "lat": -37.479815,
         "lng": 144.289926
       },
       {
-        "n": "Whipstick Loop Bridge (20786)",
         "lat": -37.476359,
         "lng": 144.297782
       },
       {
-        "n": "Lyonville Toilet Toilet Block (2066)",
         "lat": -37.368903,
         "lng": 144.265136
       },
       {
-        "n": "Beeripmo Platform Viewing Platform (2259)",
         "lat": -37.3055,
         "lng": 143.270371
       },
       {
-        "n": "N/a Bridge (30151)",
         "lat": -37.577319,
         "lng": 146.267388
       },
       {
-        "n": "N/a Bridge (30152)",
         "lat": -37.574907,
         "lng": 146.264514
       },
       {
-        "n": "N/a Bridge (30153)",
         "lat": -37.572657,
         "lng": 146.264088
       },
       {
-        "n": "Plain Creek Campground Bridge Bridge (30059)",
         "lat": -37.102929,
         "lng": 146.36818
       },
       {
-        "n": "Tramway Bridge Lower Bridge (30068)",
         "lat": -37.093607,
         "lng": 146.370952
       },
       {
-        "n": "Tramway Bridge Upper Bridge (30066)",
         "lat": -37.087952,
         "lng": 146.371147
       },
       {
-        "n": "Viewing Platform (30139)",
         "lat": -36.827501,
         "lng": 145.910841
       },
       {
-        "n": "Viewing Platform",
         "lat": -37.149416,
         "lng": 146.553677
       },
       {
-        "n": "Sbc Bridge 1 Bridge (30019)",
         "lat": -36.875305,
         "lng": 146.198511
       },
       {
-        "n": "Cicada Circuit Trail Bridge Bridge (51104)",
         "lat": -37.317278,
         "lng": 145.859803
       },
       {
-        "n": "Cicada Trestle Bridge Bridge (51076)",
         "lat": -37.317769,
         "lng": 145.858044
       },
       {
-        "n": "Lower Rubicon Pipeline Bridge Bridge (51089)",
         "lat": -37.303823,
         "lng": 145.845572
       },
       {
-        "n": "Rubicon River Bridge Bridge (51105)",
         "lat": -37.317677,
         "lng": 145.859666
       },
       {
-        "n": "N/a Bridge (51122)",
         "lat": -37.423835,
         "lng": 146.100471
       },
       {
-        "n": "Kendalls Link Track Bridge Bridge (50937)",
         "lat": -37.317156,
         "lng": 145.858426
       },
       {
-        "n": "15000' Bridge Bridge (1487)",
         "lat": -37.371165,
         "lng": 145.863543
       },
       {
-        "n": "Beech Creek Bridge Bridge (1479)",
         "lat": -37.387775,
         "lng": 145.863568
       },
       {
-        "n": "Royston Bridge Bridge (1473)",
         "lat": -37.373792,
         "lng": 145.864414
       },
       {
-        "n": "Rubicon 4 Bridge (1478)",
         "lat": -37.387299,
         "lng": 145.864512
       },
       {
-        "n": "Rubicon 6 Bridge (1483)",
         "lat": -37.371247,
         "lng": 145.863522
       },
       {
-        "n": "Rubicon 8 Bridge (1493)",
         "lat": -37.339368,
         "lng": 145.856939
       },
       {
-        "n": "Snobs Falls Stairs Stairs (50317)",
         "lat": -37.303236,
         "lng": 145.888457
       },
       {
-        "n": "Snobs cascades viewing platform Viewing Platform (50313)",
         "lat": -37.304043,
         "lng": 145.888399
       },
       {
-        "n": "Snobs Falls Viewing Platform Viewing Platform (50316)",
         "lat": -37.303251,
         "lng": 145.888394
       },
       {
-        "n": "Sunday Creek Walk Bridge Bridge (50522)",
         "lat": -37.362682,
         "lng": 145.117231
       },
       {
-        "n": "Sunday Creek Walk Bridge Bridge (50524)",
         "lat": -37.36021,
         "lng": 145.114207
       },
       {
-        "n": "Sunday Creek Walk Bridge Bridge (50525)",
         "lat": -37.359814,
         "lng": 145.113132
       },
       {
-        "n": "Strath Creek Falls Walk Viewing Platform Viewing Platform (50501)",
         "lat": -37.307678,
         "lng": 145.189519
       },
       {
-        "n": "Strath Creek Falls Walk Viewing Platform Viewing Platform (50509)",
         "lat": -37.306341,
         "lng": 145.189319
       },
       {
-        "n": "Learys Creek Long Loop Downstream Bridge Bridge (50614)",
         "lat": -37.5175,
         "lng": 145.7453
       },
       {
-        "n": "Learys Creek Short Loop Downstream Bridge Bridge (50610)",
         "lat": -37.5152,
         "lng": 145.7461
       },
       {
-        "n": "Learys Creek Short Loop Upstream Bridge Bridge (50606)",
         "lat": -37.5159,
         "lng": 145.7453
       },
       {
-        "n": "Gilberts Gully Downstream Bridge (50364)",
         "lat": -37.511622,
         "lng": 145.7334
       },
       {
-        "n": "Gilberts Gully Upstream Bridge (50353)",
         "lat": -37.515149,
         "lng": 145.732452
       },
       {
-        "n": "Steavenson River Bridge Bridge (50577)",
         "lat": -37.533653,
         "lng": 145.775106
       },
       {
-        "n": "Michaeldene Boardwalk Bridge Bridge (8954)",
         "lat": -37.4978,
         "lng": 145.7644
       },
       {
-        "n": "Wooden bridge Bridge (207041)",
         "lat": -37.5012,
         "lng": 145.7599
       },
       {
-        "n": "Steavenson Falls Walk Bridge Bridge (50716)",
         "lat": -37.532397,
         "lng": 145.773322
       },
       {
-        "n": "Galipoli Park Vehicle Bridge (8885)",
         "lat": -37.51093,
         "lng": 145.750048
       },
       {
-        "n": "Tree Fern Gully Yellow Dog Pedestrian Bridge (8904)",
         "lat": -37.520385,
         "lng": 145.763203
       },
       {
-        "n": "Keppel Lookout Viewing Platform (50727)",
         "lat": -37.535454,
         "lng": 145.753479
       },
       {
-        "n": "Top Of Falls Lookout Viewing Platform (50575)",
         "lat": -37.533538,
         "lng": 145.775025
       },
       {
-        "n": "Steavenson Falls Viewing Platform Viewing Platform (121105)",
         "lat": -37.5298,
         "lng": 145.7723
       },
       {
-        "n": "Steavenson Falls Viewing Platform Viewing Platform (50713)",
         "lat": -37.53265,
         "lng": 145.77357
       },
       {
-        "n": "Steavenson Falls Viewing Platform Viewing Platform (50712)",
         "lat": -37.5323,
         "lng": 145.7731
       },
       {
-        "n": "Steavenson Falls Viewing Platform Viewing Platform (50719)",
         "lat": -37.5325,
         "lng": 145.7736
       },
       {
-        "n": "Booroondara Track Bridge Bridge (50294)",
         "lat": -37.420026,
         "lng": 145.575838
       },
       {
-        "n": "Murrindindi River Walk South Bridge 2 Bridge (50881)",
         "lat": -37.457452,
         "lng": 145.572619
       },
       {
-        "n": "Murrindindi River Walk South Bridge Bridge (50880)",
         "lat": -37.457594,
         "lng": 145.572578
       },
       {
-        "n": "Murrindindi River Walk Middle Bridge 2 Bridge (50904)",
         "lat": -37.433101,
         "lng": 145.572758
       },
       {
-        "n": "Murrindindi River Walk Middle Bridge Bridge (50887)",
         "lat": -37.450622,
         "lng": 145.585149
       },
       {
-        "n": "Murrindindi River Walk North Bridge 2 Bridge (50931)",
         "lat": -37.397835,
         "lng": 145.559518
       },
       {
-        "n": "Murrindindi River Walk North Bridge Bridge (50930)",
         "lat": -37.400602,
         "lng": 145.561918
       },
       {
-        "n": "N/a Bridge (50896)",
         "lat": -37.442975,
         "lng": 145.58205
       },
       {
-        "n": "Sec Bridge Bridge (50078)",
         "lat": -37.395045,
         "lng": 145.558473
       },
       {
-        "n": "Suspension Bridge Bridge (50112)",
         "lat": -37.388471,
         "lng": 145.554425
       },
       {
-        "n": "Dealbata Footbridge Bridge (50981)",
         "lat": -37.531797,
         "lng": 145.530312
       },
       {
-        "n": "Les Gimmell Bridge Bridge (50964)",
         "lat": -37.548741,
         "lng": 145.531459
       },
       {
-        "n": "Tanglefoot Loop Bridge Bridge (50974)",
         "lat": -37.534376,
         "lng": 145.5283
       },
       {
-        "n": "Tanglefoot Loop Footbridge Bridge (50972)",
         "lat": -37.536094,
         "lng": 145.52849
       },
       {
-        "n": "Water Guage Bridge Bridge (50849)",
         "lat": -37.415455,
         "lng": 145.565286
       },
       {
-        "n": "Bridge (201105)",
         "lat": -37.5273,
         "lng": 145.5218
       },
       {
-        "n": "Bridge (201106)",
         "lat": -37.5271,
         "lng": 145.5211
       },
       {
-        "n": "Bridge (201107)",
         "lat": -37.5276,
         "lng": 145.5202
       },
       {
-        "n": "Bridge (201108)",
         "lat": -37.5279,
         "lng": 145.5197
       },
       {
-        "n": "Bridge (201109)",
         "lat": -37.5271,
         "lng": 145.5214
       },
       {
-        "n": "Bridge (201110)",
         "lat": -37.5275,
         "lng": 145.5224
       },
       {
-        "n": "Murrindindi River Walk South Stairs Stairs (50878)",
         "lat": -37.457796,
         "lng": 145.572469
       },
       {
-        "n": "Wilhelmina Falls Upper Viewing Platform Viewing Platform (207942)",
         "lat": -37.4007,
         "lng": 145.574
       },
       {
-        "n": "Viewing Platform (201163)",
         "lat": -37.528,
         "lng": 145.5196
       },
       {
-        "n": "Edi Cutting Footbridge (40029)",
         "lat": -36.661705,
         "lng": 146.419961
       },
       {
-        "n": "Bakers Gully Reservoirs Lower Loop - Mcfadyen Branch Bridge (120317)",
         "lat": -36.740258,
         "lng": 146.958123
       },
       {
-        "n": "Bakers Gully Reservoirs Lower Loop Arc Bridge Bridge (120283)",
         "lat": -36.741635,
         "lng": 146.957343
       },
       {
-        "n": "Bakers Gully Reservoirs Lower Loop Waterfall Bridge Bridge (120287)",
         "lat": -36.743031,
         "lng": 146.956709
       },
       {
-        "n": "Bakers Gully Reservoirs Upper Loop Bridge (120302)",
         "lat": -36.745408,
         "lng": 146.956489
       },
       {
-        "n": "Huggins Lookout Viewing Platform (120327)",
         "lat": -36.739612,
         "lng": 146.963239
       },
       {
-        "n": "old water tank and stand ( no asset number) 80006",
         "lat": -36.238424,
         "lng": 147.524775
       },
       {
-        "n": "Bridge (204035)ËœUnder 5 years old",
         "lat": -36.487953,
         "lng": 147.952033
       },
       {
-        "n": "Bridge (204036)Ëœunder 5 years old",
         "lat": -36.488326,
         "lng": 147.951836
       },
       {
-        "n": "Bridge (204037)Ëœunder 5 years old",
         "lat": -36.488508,
         "lng": 147.952053
       },
       {
-        "n": "Viewing Platform (204041)Ëœunder 5 years old",
         "lat": -36.489447,
         "lng": 147.952027
       },
       {
-        "n": "Berrook Campground Viewing Platform Viewing Platform (206053)",
         "lat": -34.987201,
         "lng": 141.021552
       },
       {
-        "n": "Big billy viewing platform Viewing Platform (201459)",
         "lat": -35.513558,
         "lng": 141.32494
       },
       {
-        "n": "Hermans Hill Viewing Platform (2963)",
         "lat": -35.988759,
         "lng": 141.738716
       },
       {
-        "n": "Bridge (204230)",
         "lat": -35.678445,
         "lng": 144.147722
       },
       {
-        "n": "Ada River Road Vehicle Bridge (proposing to re?purpose as a walker only bridge)",
         "lat": -37.844674,
         "lng": 145.870075
       },
       {
-        "n": "Reids - Footbridge 2 Bridge (211)",
         "lat": -37.851259,
         "lng": 145.759982
       },
       {
-        "n": "Reids - Footbridge 1 Bridge (203)",
         "lat": -37.860344,
         "lng": 145.745405
       },
       {
-        "n": "Reids - Footbridge 3 Bridge (237)",
         "lat": -37.865571,
         "lng": 145.759331
       },
       {
-        "n": "Reids - Footbridge 5 Bridge (258)",
         "lat": -37.861686,
         "lng": 145.746999
       },
       {
-        "n": "W.I.H. - Footbridge 10 Bridge (4407)",
         "lat": -37.835813,
         "lng": 145.840687
       },
       {
-        "n": "W.I.H. - Footbridge 9 Bridge (4413)",
         "lat": -37.869668,
         "lng": 145.850724
       },
       {
-        "n": "W.I.H. - Footbridge 1 Bridge (120418)",
         "lat": -37.866739,
         "lng": 145.772152
       },
       {
-        "n": "W.I.H. - Footbridge 2 Bridge (120419)",
         "lat": -37.866984,
         "lng": 145.773102
       },
       {
-        "n": "W.I.H. - Footbridge 3 Bridge (120420)",
         "lat": -37.86671,
         "lng": 145.773975
       },
       {
-        "n": "Footbridge 4 Bridge (120421)",
         "lat": -37.874375,
         "lng": 145.837456
       },
       {
-        "n": "Footbridge 5 Bridge (120422)",
         "lat": -37.876134,
         "lng": 145.841547
       },
       {
-        "n": "W.I.H. - Footbridge 8 Bridge (4417)",
         "lat": -37.877787,
         "lng": 145.850871
       },
       {
-        "n": "W.I.H. - Footbridge 11 Bridge (4247)",
         "lat": -37.772119,
         "lng": 145.755203
       },
       {
-        "n": "W.I.H. - Footbridge 12 Bridge (4248)",
         "lat": -37.770913,
         "lng": 145.755292
       },
       {
-        "n": "Ada Bridge (4091)",
         "lat": -37.816593,
         "lng": 145.859151
       },
       {
-        "n": "Richards Bridge (8434)",
         "lat": -37.781172,
         "lng": 145.807854
       },
       {
-        "n": "Powelltown Toilet Block (4397)",
         "lat": -37.860704,
         "lng": 145.744817
       },
       {
-        "n": "Ada Tree Including Boardwalk Viewing Platform (4106)",
         "lat": -37.816785,
         "lng": 145.858028
       },
       {
-        "n": "Yarra River Foot Bridge",
         "lat": -37.668,
         "lng": 145.889
       },
       {
-        "n": "No Name Structure",
         "lat": -37.672,
         "lng": 145.894
       },
       {
-        "n": "Loop Apex Bridge",
         "lat": -37.369329,
         "lng": 145.859497
       },
       {
-        "n": "Metal Bridge",
         "lat": -37.876,
         "lng": 145.82
       }
@@ -1581,222 +1290,178 @@ const PROJECTS = [
     "colour": "#E01B33",
     "assets": [
       {
-        "n": "BRG.00022 - Barolin Esplanade Bridge",
         "lat": -24.874183,
         "lng": 152.48347
       },
       {
-        "n": "BRG.00040 - Agnesvale Bridge",
         "lat": -25.364478,
         "lng": 152.239594
       },
       {
-        "n": "BRG.00032 - Quinns Road Bridge",
         "lat": -24.789973,
         "lng": 152.198813
       },
       {
-        "n": "BRG.00029 - Pine Creek Bridge",
         "lat": -25.004101,
         "lng": 152.166403
       },
       {
-        "n": "BRG.00033 - Wendlands Gully Bridge",
         "lat": -24.798763,
         "lng": 152.169075
       },
       {
-        "n": "BRG.00043 - Burnett River Bridge",
         "lat": -25.085573,
         "lng": 151.995062
       },
       {
-        "n": "BRG.00044 - Newlands Road Bridge",
         "lat": -25.022522,
         "lng": 152.244983
       },
       {
-        "n": "BRG.00064 - Gillens Siding Road Bridge",
         "lat": -24.997641,
         "lng": 151.766703
       },
       {
-        "n": "BRG.00048 - Stallans Bridge",
         "lat": -25.230006,
         "lng": 152.026488
       },
       {
-        "n": "BRG.00078 - St Agnes Bridge",
         "lat": -25.134903,
         "lng": 151.973488
       },
       {
-        "n": "BRG.00079 - Perry River Bridge",
         "lat": -25.167802,
         "lng": 151.972666
       },
       {
-        "n": "BRG.00312 - Wallace Creek Bridge",
         "lat": -24.75945,
         "lng": 152.397122
       },
       {
-        "n": "BRG.00313 - Gayndah Road Bridge",
         "lat": -25.249875,
         "lng": 151.904218
       },
       {
-        "n": "FB.00009 - Barolin Esplanade Footbridge",
         "lat": -24.874183,
         "lng": 152.483526
       },
       {
-        "n": "FB.00015 - Woodgate Road Path Footbridge",
         "lat": -25.098087,
         "lng": 152.552191
       },
       {
-        "n": "FB.00014 - Woodgate Road Path Footbridge",
         "lat": -25.098415,
         "lng": 152.553493
       },
       {
-        "n": "FB.00011 - Hume Street Footbridge",
         "lat": -25.195068,
         "lng": 152.53984
       },
       {
-        "n": "FB.00013 - Woodgate Road Path Footbridge",
         "lat": -25.099797,
         "lng": 152.554607
       },
       {
-        "n": "FB.00012 - Wharf Street Footbridge",
         "lat": -25.195105,
         "lng": 152.540096
       },
       {
-        "n": "FB.00021 - Botanic Gardens Nanning Gardens Footbridge",
         "lat": -24.854732,
         "lng": 152.337146
       },
       {
-        "n": "FB.00025 - Riflerange Creek Footbridge",
         "lat": -24.84787,
         "lng": 152.477019
       },
       {
-        "n": "FB.00030 - Water Street Footbridge",
         "lat": -24.878544,
         "lng": 152.357527
       },
       {
-        "n": "FB.00031 - Baldwin Swamp No.6 Footbridge",
         "lat": -24.866142,
         "lng": 152.368648
       },
       {
-        "n": "FB.00034 - Innes Park Reserve",
         "lat": -24.873098,
         "lng": 152.483199
       },
       {
-        "n": "FB.00033 - Nielson Park Footbridge",
         "lat": -24.807159,
         "lng": 152.457583
       },
       {
-        "n": "FB.00038 - Baldwin Swamp No.2 Footbridge",
         "lat": -24.866178,
         "lng": 152.366772
       },
       {
-        "n": "FB.00036 - Reginal Savidge Park Footbridge",
         "lat": -24.919506,
         "lng": 152.492058
       },
       {
-        "n": "FB.00042 - Baldwin Swamp No.7 Footbridge",
         "lat": -24.866738,
         "lng": 152.367725
       },
       {
-        "n": "FB.00044 - Loeskow Park Footbridge",
         "lat": -24.880444,
         "lng": 152.310549
       },
       {
-        "n": "FB.00046 - Martins Oval Footbridge",
         "lat": -24.890855,
         "lng": 152.349719
       },
       {
-        "n": "FB.00055 - Japanese Gardens Footbridge",
         "lat": -24.85537,
         "lng": 152.335317
       },
       {
-        "n": "FB.00057 - Burrum Street Footbridge",
         "lat": -24.874198,
         "lng": 152.346582
       },
       {
-        "n": "FB.00058 - Bundaberg Botanic Gardens Nanning Gardens Footbridge",
         "lat": -24.854434,
         "lng": 152.337576
       },
       {
-        "n": "CUL.00075 - Avoca Street Culvert",
         "lat": -24.875235,
         "lng": 152.327947
       },
       {
-        "n": "CUL.04733 - Kevin Livingston Drive Culvert",
         "lat": -25.168482,
         "lng": 152.209512
       },
       {
-        "n": "BRG.TBA02 - DAMASCUS ROAD",
         "lat": -24.959178,
         "lng": 151.948748
       },
       {
-        "n": "BRG.TBA03 - JENSENS ROAD",
         "lat": -24.916699,
         "lng": 151.920217
       },
       {
-        "n": "BRG.TBA04 - MCILWRAITH ROAD",
         "lat": -24.999358,
         "lng": 151.981421
       },
       {
-        "n": "BRG.TBA05 - MELVILLES ROAD",
         "lat": -24.970102,
         "lng": 152.012154
       },
       {
-        "n": "BRG.TBA06 - MONDURAN DAM ROAD",
         "lat": -24.880237,
         "lng": 151.852902
       },
       {
-        "n": "BRG.TBA07 - TURPENTINE ROAD",
         "lat": -25.0337,
         "lng": 152.263037
       },
       {
-        "n": "CUL.TB274 - HIGH SCHOOL ROAD",
         "lat": -24.992219,
         "lng": 151.969956
       },
       {
-        "n": "CUL.TB284 - MOORLANDS ROAD",
         "lat": -24.784214,
         "lng": 152.217976
       },
       {
-        "n": "CUL.TB300 - HIGH SCHOOL ROAD",
         "lat": -24.992677,
         "lng": 151.967491
       }
@@ -1807,27 +1472,22 @@ const PROJECTS = [
     "colour": "#7A4A32",
     "assets": [
       {
-        "n": "Ligar Street Rail Bridge",
         "lat": -34.360475,
         "lng": 150.491069
       },
       {
-        "n": "Chalker Parade Overbridge",
         "lat": -34.356544,
         "lng": 150.494726
       },
       {
-        "n": "Wilson Drive Overbridge",
         "lat": -34.331118,
         "lng": 150.499198
       },
       {
-        "n": "Thirlmere Turntable",
         "lat": -34.208691,
         "lng": 150.567583
       },
       {
-        "n": "Valley Heights Turntable",
         "lat": -33.702554,
         "lng": 150.580157
       }
@@ -1838,83 +1498,69 @@ const PROJECTS = [
     "colour": "#16B8E8",
     "assets": [
       {
-        "n": "Gardeners Rd",
         "lat": -33.924068,
         "lng": 151.212958
       },
       {
-        "n": "Rainbow St",
         "lat": -33.925011,
         "lng": 151.23495
       },
       {
-        "n": "Frenchmans Rd",
         "lat": -33.907016,
         "lng": 151.249897
       },
       {
-        "n": "Carrington Rd",
         "lat": -33.89786,
         "lng": 151.254113
       },
       {
-        "n": "Hume Highway",
         "lat": -33.898162,
         "lng": 150.994841
       },
       {
-        "n": "Stacey Street",
         "lat": -33.916684,
         "lng": 151.041122
       },
       {
-        "n": "Fairford Rd",
         "lat": -33.931937,
         "lng": 151.037414
       },
       {
-        "n": "Davies Rd",
         "lat": -33.956973,
         "lng": 151.037835
       },
       {
-        "n": "Alfords Point Rd",
         "lat": -33.980804,
         "lng": 151.029537
       },
       {
-        "n": "The Kingsway",
         "lat": -34.033838,
         "lng": 151.099433
       },
       {
-        "n": "Port Hacking Rd",
         "lat": -34.018847,
         "lng": 151.106179
       },
       {
-        "n": "King Georges Rd",
         "lat": -33.959727,
         "lng": 151.089495
       }
-    ]
+    ],
+    "note": "approx. 2,500+ structures"
   },
   {
     "name": "Wingecarribee Shire Council",
     "colour": "#F2559B",
     "assets": [
       {
-        "n": "Mount Road Bridge",
         "lat": -34.475115,
         "lng": 150.416201
       },
       {
-        "n": "Old Illawarra Highway Bridge",
         "lat": -34.565045,
         "lng": 150.323596
       },
       {
-        "n": "Glenquarry Cut Bridge",
         "lat": -34.541763,
         "lng": 150.497758
       }
@@ -1925,7 +1571,6 @@ const PROJECTS = [
     "colour": "#8B8D93",
     "assets": [
       {
-        "n": "Murray River Rail Bridge",
         "lat": -35.116341,
         "lng": 139.280625
       }
@@ -1936,25 +1581,639 @@ const PROJECTS = [
     "colour": "#F5A623",
     "assets": [
       {
-        "n": "Brickmakers Dr Pedestrian Bridge",
         "lat": -33.931137,
         "lng": 150.962614
       }
     ]
   }
 ];
-/* ASSET-DATA:END */
 
-/* Indicative ARTC corridor alignment, drawn through rail-served centres between
-   the Murray and Brisbane. It is a schematic overlay for context only — no
-   corridor coordinates were supplied with the asset data, so nothing here
-   should be read as a surveyed alignment. */
-const CORRIDOR = [
-  [-35.12, 139.28], [-35.26, 140.91], [-35.07, 142.32], [-35.34, 143.55],
-  [-35.53, 144.95], [-35.11, 147.37], [-34.75, 149.72], [-33.87, 151.21],
-  [-32.93, 151.78], [-31.90, 152.46], [-30.30, 153.12], [-29.69, 152.93],
-  [-28.86, 153.05], [-27.99, 153.00], [-27.58, 153.03]
+const CORRIDORS = [
+  {
+    "name": "South Coast",
+    "points": [
+      [
+        -36.083872,
+        146.92467
+      ],
+      [
+        -36.074326,
+        146.927432
+      ],
+      [
+        -36.038427,
+        146.971994
+      ],
+      [
+        -35.96962,
+        147.003792
+      ],
+      [
+        -35.808101,
+        146.993553
+      ],
+      [
+        -35.692247,
+        147.032895
+      ],
+      [
+        -35.631827,
+        147.044081
+      ],
+      [
+        -35.452501,
+        147.030402
+      ],
+      [
+        -35.383278,
+        147.059585
+      ],
+      [
+        -35.278232,
+        147.094233
+      ],
+      [
+        -35.190768,
+        147.247649
+      ],
+      [
+        -35.135475,
+        147.316005
+      ],
+      [
+        -35.119716,
+        147.363384
+      ],
+      [
+        -35.120688,
+        147.375859
+      ],
+      [
+        -35.108542,
+        147.389206
+      ],
+      [
+        -35.058166,
+        147.427108
+      ],
+      [
+        -34.852107,
+        147.592633
+      ],
+      [
+        -34.641058,
+        148.028365
+      ],
+      [
+        -34.520874,
+        148.194838
+      ],
+      [
+        -34.550288,
+        148.355513
+      ],
+      [
+        -34.603773,
+        148.554654
+      ],
+      [
+        -34.684749,
+        148.648457
+      ],
+      [
+        -34.718683,
+        148.661275
+      ],
+      [
+        -34.772565,
+        148.8486
+      ],
+      [
+        -34.808373,
+        148.920097
+      ],
+      [
+        -34.781446,
+        149.017128
+      ],
+      [
+        -34.781023,
+        149.26566
+      ],
+      [
+        -34.789993,
+        149.681915
+      ],
+      [
+        -34.723376,
+        149.758506
+      ],
+      [
+        -34.709513,
+        150.009732
+      ],
+      [
+        -34.646666,
+        150.320708
+      ],
+      [
+        -34.508901,
+        150.382213
+      ],
+      [
+        -34.457467,
+        150.422852
+      ],
+      [
+        -34.307082,
+        150.595933
+      ],
+      [
+        -34.213968,
+        150.593421
+      ],
+      [
+        -34.167173,
+        150.604125
+      ],
+      [
+        -34.201117,
+        150.653306
+      ],
+      [
+        -34.169352,
+        150.731172
+      ],
+      [
+        -34.084976,
+        150.760627
+      ],
+      [
+        -33.990294,
+        150.872393
+      ],
+      [
+        -33.919747,
+        150.933333
+      ],
+      [
+        -33.890545,
+        150.94069
+      ],
+      [
+        -33.883274,
+        151.067181
+      ],
+      [
+        -33.963053,
+        151.219573
+      ]
+    ]
+  },
+  {
+    "name": "North Coast",
+    "points": [
+      [
+        -32.720356,
+        151.541135
+      ],
+      [
+        -32.677669,
+        151.584351
+      ],
+      [
+        -32.61781,
+        151.58278
+      ],
+      [
+        -32.600133,
+        151.617198
+      ],
+      [
+        -32.539103,
+        151.612919
+      ],
+      [
+        -32.502573,
+        151.651307
+      ],
+      [
+        -32.490553,
+        151.715802
+      ],
+      [
+        -32.457154,
+        151.745693
+      ],
+      [
+        -32.398426,
+        151.760399
+      ],
+      [
+        -32.372887,
+        151.787771
+      ],
+      [
+        -32.3724,
+        151.810388
+      ],
+      [
+        -32.382186,
+        151.813351
+      ],
+      [
+        -32.375536,
+        151.84867
+      ],
+      [
+        -32.347033,
+        151.930203
+      ],
+      [
+        -32.288814,
+        151.950835
+      ],
+      [
+        -32.225619,
+        151.935261
+      ],
+      [
+        -32.087539,
+        151.943032
+      ],
+      [
+        -32.004146,
+        151.96705
+      ],
+      [
+        -31.985657,
+        151.962801
+      ],
+      [
+        -31.957079,
+        152.006017
+      ],
+      [
+        -31.921498,
+        152.021681
+      ],
+      [
+        -31.887531,
+        152.110391
+      ],
+      [
+        -31.896495,
+        152.130733
+      ],
+      [
+        -31.882284,
+        152.153993
+      ],
+      [
+        -31.881519,
+        152.176181
+      ],
+      [
+        -31.909438,
+        152.226571
+      ],
+      [
+        -31.897858,
+        152.245227
+      ],
+      [
+        -31.924087,
+        152.29076
+      ],
+      [
+        -31.869812,
+        152.343711
+      ],
+      [
+        -31.868999,
+        152.401516
+      ],
+      [
+        -31.894035,
+        152.449465
+      ],
+      [
+        -31.907372,
+        152.460866
+      ],
+      [
+        -31.842789,
+        152.515659
+      ],
+      [
+        -31.785982,
+        152.536037
+      ],
+      [
+        -31.807138,
+        152.621067
+      ],
+      [
+        -31.692825,
+        152.73478
+      ],
+      [
+        -31.66883,
+        152.740745
+      ],
+      [
+        -31.653087,
+        152.704911
+      ],
+      [
+        -31.526659,
+        152.734645
+      ],
+      [
+        -31.452224,
+        152.73722
+      ],
+      [
+        -31.380873,
+        152.755947
+      ],
+      [
+        -31.325841,
+        152.788183
+      ],
+      [
+        -31.301227,
+        152.835065
+      ],
+      [
+        -31.188674,
+        152.83828
+      ],
+      [
+        -31.101853,
+        152.837523
+      ],
+      [
+        -31.018351,
+        152.84282
+      ],
+      [
+        -30.970971,
+        152.826652
+      ],
+      [
+        -30.904262,
+        152.892527
+      ],
+      [
+        -30.834978,
+        152.903498
+      ],
+      [
+        -30.817879,
+        152.886504
+      ],
+      [
+        -30.771344,
+        152.892032
+      ],
+      [
+        -30.699428,
+        152.916005
+      ],
+      [
+        -30.658783,
+        152.932812
+      ],
+      [
+        -30.56392,
+        153.013942
+      ],
+      [
+        -30.500601,
+        153.019161
+      ],
+      [
+        -30.481482,
+        153.007917
+      ],
+      [
+        -30.382736,
+        153.055522
+      ],
+      [
+        -30.35041,
+        153.10612
+      ],
+      [
+        -30.302154,
+        153.139083
+      ],
+      [
+        -30.278086,
+        153.122392
+      ],
+      [
+        -30.287721,
+        153.06068
+      ],
+      [
+        -30.256207,
+        153.042864
+      ],
+      [
+        -30.215329,
+        153.016911
+      ],
+      [
+        -30.104708,
+        153.012138
+      ],
+      [
+        -30.055604,
+        152.982108
+      ],
+      [
+        -30.026627,
+        153.000219
+      ],
+      [
+        -29.986787,
+        152.992164
+      ],
+      [
+        -29.926913,
+        153.009373
+      ],
+      [
+        -29.827168,
+        152.986701
+      ],
+      [
+        -29.762857,
+        152.93388
+      ],
+      [
+        -29.69225,
+        152.940626
+      ],
+      [
+        -29.656433,
+        152.91529
+      ],
+      [
+        -29.617043,
+        152.941333
+      ],
+      [
+        -29.560906,
+        152.990041
+      ],
+      [
+        -29.471455,
+        152.994958
+      ],
+      [
+        -29.402985,
+        152.993157
+      ],
+      [
+        -29.339721,
+        153.02088
+      ],
+      [
+        -29.317495,
+        153.009364
+      ],
+      [
+        -29.260566,
+        152.963308
+      ],
+      [
+        -29.139294,
+        152.935858
+      ],
+      [
+        -29.016389,
+        152.972357
+      ],
+      [
+        -28.912997,
+        153.013215
+      ],
+      [
+        -28.888388,
+        153.045873
+      ],
+      [
+        -28.85203,
+        153.039602
+      ],
+      [
+        -28.722544,
+        152.995303
+      ],
+      [
+        -28.654327,
+        153.003796
+      ],
+      [
+        -28.615097,
+        153.000406
+      ],
+      [
+        -28.581606,
+        152.982957
+      ],
+      [
+        -28.528198,
+        152.970524
+      ],
+      [
+        -28.503184,
+        152.967831
+      ],
+      [
+        -28.480673,
+        152.939483
+      ],
+      [
+        -28.427573,
+        152.958967
+      ],
+      [
+        -28.418552,
+        152.975961
+      ],
+      [
+        -28.366838,
+        152.975616
+      ],
+      [
+        -28.354688,
+        152.960277
+      ],
+      [
+        -28.32651,
+        152.970834
+      ],
+      [
+        -28.307504,
+        152.904059
+      ],
+      [
+        -28.254638,
+        152.903669
+      ],
+      [
+        -28.192979,
+        152.884301
+      ],
+      [
+        -28.110568,
+        152.915564
+      ],
+      [
+        -28.027639,
+        152.922315
+      ],
+      [
+        -27.974212,
+        152.927852
+      ],
+      [
+        -27.88743,
+        152.928815
+      ],
+      [
+        -27.838619,
+        152.924824
+      ],
+      [
+        -27.738367,
+        152.976051
+      ],
+      [
+        -27.668023,
+        153.020698
+      ],
+      [
+        -27.603531,
+        153.032443
+      ],
+      [
+        -27.577559,
+        153.031009
+      ]
+    ]
+  }
 ];
+/* MAP-DATA:END */
+
+/* Headline coverage figure. The plotted markers are inspection sites, not one
+   marker per structure, so this total is set editorially rather than counted
+   from the data. */
+const TOTAL_LABEL = '3,500+';
 
 const AUSTRALIA = L.latLngBounds([-44.2, 112.0], [-9.5, 154.5]);
 
@@ -2020,36 +2279,23 @@ map.addControl(new BasemapControl());
  * Corridor overlay
  * ------------------------------------------------------------------ */
 
-/* Chaikin subdivision, so the schematic corridor reads as a smooth sweep
-   rather than a chain of straight hops. */
-function smooth(points, passes = 3) {
-  let path = points;
-  for (let pass = 0; pass < passes; pass++) {
-    const next = [path[0]];
-    for (let i = 0; i < path.length - 1; i++) {
-      const [aLat, aLng] = path[i];
-      const [bLat, bLng] = path[i + 1];
-      next.push([aLat + .25 * (bLat - aLat), aLng + .25 * (bLng - aLng)]);
-      next.push([aLat + .75 * (bLat - aLat), aLng + .75 * (bLng - aLng)]);
-    }
-    next.push(path[path.length - 1]);
-    path = next;
-  }
-  return path;
-}
+/* Each sheet of the ARTC workbook is one continuous run of line, drawn as its
+   own polyline. Keeping them separate is what leaves the Sydney–Newcastle gap
+   open, where there is no ARTC line to follow. */
+const corridorColour = getComputedStyle(document.documentElement)
+  .getPropertyValue('--corridor').trim() || '#F5A623';
 
-const corridorLine = L.polyline(smooth(CORRIDOR), {
-  color: getComputedStyle(document.documentElement).getPropertyValue('--corridor').trim() || '#F5A623',
-  weight: 4,
-  opacity: .95,
-  dashArray: '12 10',
-  lineCap: 'round',
-  interactive: true
-}).bindTooltip('ARTC corridor — indicative alignment, approx. 200+ structures', {
-  sticky: true,
-  className: 'asset-tip'
-});
-corridorLine.addTo(map);
+const corridorLayer = L.layerGroup(
+  CORRIDORS.map(segment => L.polyline(segment.points, {
+    color: corridorColour,
+    weight: 4,
+    opacity: .95,
+    dashArray: '12 10',
+    lineCap: 'round',
+    lineJoin: 'round',
+    interactive: true
+  }).bindTooltip('ARTC corridor', { sticky: true, className: 'asset-tip' }))
+).addTo(map);
 
 /* ------------------------------------------------------------------ *
  * Markers
@@ -2057,7 +2303,6 @@ corridorLine.addTo(map);
 
 const markerLayer = L.layerGroup().addTo(map);
 const projectState = new Map();   // project name -> { colour, visible, markers, bounds }
-const allAssets = [];             // flat list backing the search
 
 /* Several assets share an identical coordinate (a bridge and its viewing
    platform, for instance). Fan duplicates out onto a small ring so every
@@ -2087,11 +2332,11 @@ function escapeHtml(value) {
   ));
 }
 
+/* Points are identified by their project, never by the individual asset name. */
 function popupHtml(asset) {
   const coords = asset.lat.toFixed(6) + ', ' + asset.lng.toFixed(6);
   return (
-    '<span class="pop-project"><i style="background:' + asset.colour + '"></i>' + escapeHtml(asset.project) + '</span>' +
-    '<div class="pop-name">' + escapeHtml(asset.n) + '</div>' +
+    '<div class="pop-name"><i style="background:' + asset.colour + '"></i>' + escapeHtml(asset.project) + '</div>' +
     '<div class="pop-coords">' + coords + '</div>' +
     (asset.note ? '<div class="pop-note">' + escapeHtml(asset.note) + '</div>' : '') +
     '<div class="pop-links">' +
@@ -2122,13 +2367,11 @@ PROJECTS.forEach(project => {
       fillOpacity: 1,
       bubblingMouseEvents: false
     });
-    marker.bindTooltip(asset.n, { direction: 'top', offset: [0, -6], className: 'asset-tip' });
+    marker.bindTooltip(project.name, { direction: 'top', offset: [0, -6], className: 'asset-tip' });
     marker.bindPopup(() => popupHtml(asset), { closeButton: true, autoPanPadding: [30, 30] });
     marker.on('mouseover', () => marker.setStyle({ weight: 3 }));
     marker.on('mouseout', () => marker.setStyle({ weight: 1.6 }));
 
-    asset.marker = marker;
-    allAssets.push(asset);
     return marker;
   });
 
@@ -2139,6 +2382,7 @@ PROJECTS.forEach(project => {
     visible: true,
     markers,
     count: project.assets.length,
+    note: project.note || '',
     bounds: L.latLngBounds(project.assets.map(a => [a.dLat ?? a.lat, a.dLng ?? a.lng]))
   });
 });
@@ -2163,17 +2407,21 @@ document.addEventListener('click', event => {
 const legendEl = document.getElementById('legend');
 const tallyEl = document.getElementById('tally');
 const subtitleEl = document.getElementById('subtitle');
-const totalAssets = allAssets.length;
+const projectCount = projectState.size;
 
-subtitleEl.textContent = totalAssets + ' inspected assets across ' + projectState.size + ' projects';
+subtitleEl.textContent = TOTAL_LABEL + ' inspected assets across ' + projectCount + ' projects';
 
 projectState.forEach((state, name) => {
   const li = document.createElement('li');
+  /* Projects that stand for many more structures than they have markers show
+     that note instead of a marker count. */
   li.innerHTML =
     '<button class="row" type="button" aria-pressed="true" data-project="' + escapeHtml(name) + '">' +
       '<span class="dot" style="background:' + state.colour + '"></span>' +
-      '<span class="label">' + escapeHtml(name) + '</span>' +
-      '<span class="n">' + state.count + '</span>' +
+      '<span class="label">' + escapeHtml(name) +
+        (state.note ? ' <span class="note">(' + escapeHtml(state.note) + ')</span>' : '') +
+      '</span>' +
+      (state.note ? '' : '<span class="n">' + state.count + '</span>') +
       '<span class="zoom" role="button" tabindex="0" aria-label="Zoom to ' + escapeHtml(name) + '" title="Zoom to project">' +
         '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">' +
         '<circle cx="7" cy="7" r="4.6"></circle><path d="M10.4 10.4 14 14" stroke-linecap="round"></path>' +
@@ -2192,11 +2440,13 @@ function applyVisibility() {
     });
   });
 
-  let shown = 0;
-  projectState.forEach(state => { if (state.visible) shown += state.count; });
-  tallyEl.textContent = shown === totalAssets
-    ? totalAssets + ' assets'
-    : shown + ' of ' + totalAssets + ' assets';
+  /* The headline figure counts structures, while filtering works on projects,
+     so the tally switches units rather than mixing the two. */
+  let shownProjects = 0;
+  projectState.forEach(state => { if (state.visible) shownProjects += 1; });
+  tallyEl.textContent = shownProjects === projectCount
+    ? TOTAL_LABEL + ' assets'
+    : shownProjects + ' of ' + projectCount + ' projects';
 
   legendEl.querySelectorAll('.row').forEach(row => {
     const state = projectState.get(row.dataset.project);
@@ -2272,81 +2522,12 @@ document.getElementById('resetView').addEventListener('click', () => {
 
 const corridorToggle = document.getElementById('corridorToggle');
 corridorToggle.addEventListener('click', () => {
-  const on = !map.hasLayer(corridorLine);
-  if (on) corridorLine.addTo(map); else map.removeLayer(corridorLine);
+  const on = !map.hasLayer(corridorLayer);
+  if (on) corridorLayer.addTo(map); else map.removeLayer(corridorLayer);
   corridorToggle.setAttribute('aria-pressed', String(on));
   corridorToggle.classList.toggle('off', !on);
   writeHash();
 });
-
-/* ------------------------------------------------------------------ *
- * Search
- * ------------------------------------------------------------------ */
-
-const searchEl = document.getElementById('search');
-const searchClear = document.getElementById('searchClear');
-const resultsEl = document.getElementById('results');
-const emptyEl = document.getElementById('empty');
-
-function highlight(text, term) {
-  const index = text.toLowerCase().indexOf(term);
-  if (index < 0) return escapeHtml(text);
-  return escapeHtml(text.slice(0, index)) +
-    '<mark>' + escapeHtml(text.slice(index, index + term.length)) + '</mark>' +
-    escapeHtml(text.slice(index + term.length));
-}
-
-function runSearch() {
-  const term = searchEl.value.trim().toLowerCase();
-  searchClear.hidden = term.length === 0;
-
-  if (!term) {
-    resultsEl.hidden = true;
-    legendEl.hidden = false;
-    emptyEl.hidden = true;
-    resultsEl.innerHTML = '';
-    return;
-  }
-
-  const matches = allAssets
-    .filter(asset => asset.n.toLowerCase().includes(term) || asset.project.toLowerCase().includes(term))
-    .slice(0, 60);
-
-  legendEl.hidden = true;
-  resultsEl.hidden = false;
-  emptyEl.hidden = matches.length > 0;
-  resultsEl.innerHTML = matches.map((asset, index) =>
-    '<li><button class="row" type="button" data-index="' + index + '">' +
-      '<span class="dot" style="background:' + asset.colour + '"></span>' +
-      '<span class="label">' + highlight(asset.n, term) +
-        '<small>' + escapeHtml(asset.project) + '</small>' +
-      '</span>' +
-    '</button></li>'
-  ).join('');
-  resultsEl._matches = matches;
-}
-
-resultsEl.addEventListener('click', event => {
-  const row = event.target.closest('.row');
-  if (!row) return;
-  const asset = (resultsEl._matches || [])[Number(row.dataset.index)];
-  if (!asset) return;
-  const state = projectState.get(asset.project);
-  if (!state.visible) { state.visible = true; applyVisibility(); }
-  map.flyTo([asset.dLat ?? asset.lat, asset.dLng ?? asset.lng], 15, { duration: .8 });
-  map.once('moveend', () => asset.marker.openPopup());
-  if (window.matchMedia('(max-width: 760px)').matches) setPanel(false);
-});
-
-searchEl.addEventListener('input', runSearch);
-searchEl.addEventListener('keydown', event => {
-  if (event.key === 'Escape') { searchEl.value = ''; runSearch(); }
-  if (event.key === 'Enter') {
-    const first = resultsEl.querySelector('.row');
-    if (first) first.click();
-  }
-});
-searchClear.addEventListener('click', () => { searchEl.value = ''; runSearch(); searchEl.focus(); });
 
 /* ------------------------------------------------------------------ *
  * Collapsible panel (small screens)
@@ -2387,7 +2568,7 @@ function writeHash() {
     const parts = [
       centre.lat.toFixed(4) + ',' + centre.lng.toFixed(4) + ',' + map.getZoom(),
       activeBasemap === 'light' ? '' : 'b=' + activeBasemap,
-      map.hasLayer(corridorLine) ? '' : 'c=0',
+      map.hasLayer(corridorLayer) ? '' : 'c=0',
       hidden.length ? 'off=' + encodeURIComponent(hidden.join('|')) : ''
     ].filter(Boolean);
     history.replaceState(null, '', '#' + parts.join('&'));
@@ -2409,7 +2590,7 @@ function readHash() {
       document.querySelectorAll('.basemap button').forEach(b => b.classList.toggle('on', b.dataset.key === value));
     }
     if (key === 'c' && value === '0') {
-      map.removeLayer(corridorLine);
+      map.removeLayer(corridorLayer);
       corridorToggle.setAttribute('aria-pressed', 'false');
       corridorToggle.classList.add('off');
     }

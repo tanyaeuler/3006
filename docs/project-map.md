@@ -1,26 +1,26 @@
 # Asset inspection project map
 
-`public/project-map.html` is a standalone interactive map of every inspected
-asset, colour coded by project. It is a single self-contained page — drop it on
-any static host (or open it straight from disk) and it works. Served through
+`public/project-map.html` is a standalone interactive map of inspection
+coverage, colour coded by project. It is a single self-contained page — drop it
+on any static host (or open it straight from disk) and it works. Served through
 this Vite app it lives at `/project-map.html` in both `npm run dev` and the
 production build, because Vite copies `public/` through untouched.
 
 ## What's on the page
 
-- **Colour-coded markers** for all 311 assets, using the palette from the
-  approved static draft (Ports NSW blue, Zig Zag Railway green, DEECA purple,
-  and so on).
-- **Projects panel** listing each project with its colour, asset count, and a
+- **Colour-coded markers** for every plotted location, using the palette from
+  the approved static draft (Ports NSW blue, Zig Zag Railway green, DEECA
+  purple, and so on). Points are identified by their **project** on hover and
+  on click — individual asset names are deliberately not published.
+- **Projects panel** listing each project with its colour, marker count, and a
   toggle. Clicking a row shows/hides that project; the magnifier on the row
   zooms the map to that project's extent.
-- **Search** across asset and project names, with results that fly to the
-  marker and open its popup.
-- **Popups** with the asset name, its project, exact coordinates, a copy button
-  and a Google Maps link. Hovering a marker shows the asset name as a tooltip.
+- **Popups** with the project name, the point's coordinates, a copy button and
+  a Google Maps link.
+- **ARTC corridor** drawn as a dashed overlay from the surveyed alignment, and
+  toggleable.
 - **Basemap switch** between a light street map (CARTO Positron) and satellite
   imagery (Esri World Imagery).
-- **ARTC corridor** dashed overlay, matching the draft's legend, toggleable.
 - **Shareable views** — panning, zooming, the basemap choice and the visible
   projects are all written to the URL hash, so a copied link reopens the same
   view.
@@ -30,34 +30,54 @@ production build, because Vite copies `public/` through untouched.
 Leaflet 1.9.4 is loaded from unpkg with subresource-integrity hashes; there is
 no build step and no other dependency.
 
-## Updating the asset data
+## Headline figures
 
-The asset list is embedded in the page between the `ASSET-DATA` markers.
-Regenerate it from a new spreadsheet with:
+Two numbers on the page are editorial rather than counted from the data,
+because the markers are inspection locations, not one marker per structure:
+
+- **`3,500+`** — the total under the title and beside "Projects". It lives in
+  the `TOTAL_LABEL` constant at the top of the page script.
+- **`approx. 2,500+ structures`** — shown beside ConnectSydney in place of its
+  marker count. Notes like this come from `PROJECT_NOTES` in
+  `tools/build_project_map.py`; a project with a note shows the note instead of
+  a number.
+
+Because the headline total counts structures while the toggles work on
+projects, the panel tally switches units when you filter: it reads
+"3,500+ assets" with everything on, and "6 of 9 projects" once something is
+hidden.
+
+## Updating the data
+
+Both the markers and the corridor are embedded in the page between the
+`MAP-DATA` markers. Regenerate them with:
 
 ```bash
 pip install openpyxl
-python3 tools/build_project_map.py tools/Asset_Locations.xlsx
+python3 tools/build_project_map.py tools/Asset_Locations.xlsx tools/ARTC_Coordinates.xlsx
 ```
 
-The script treats each worksheet as one project and expects the columns
-`Resource Name | Latitude | Longitude`. It rewrites only the data block and
-reports anything it had to skip or repair.
+- `Asset_Locations.xlsx` — one worksheet per project, columns
+  `Resource Name | Latitude | Longitude`. Only the coordinates are carried onto
+  the map; the names stay in the spreadsheet.
+- `ARTC_Coordinates.xlsx` — one worksheet per continuous run of corridor,
+  columns `Name | Longitude | Latitude` (note this is the reverse column order
+  of the asset sheet). Each sheet becomes its own dashed polyline, which is
+  what leaves the Sydney–Newcastle gap open, where there is no ARTC line. Adding
+  another break in the corridor means adding another sheet.
 
 New projects need a colour added to `PROJECT_COLOURS` in
 `tools/build_project_map.py`; without one they fall back to neutral grey.
 
+The script reports anything it skipped or repaired.
+
 ## Known data issues
 
-- **`Delegate River Tunnel Walk Upstream Viewing Platform (10930)` (DEECA)** has
-  a latitude of `-373.77517` in the spreadsheet, which is not a real
-  coordinate. The build script reads it as a misplaced decimal point and plots
-  it at `-37.377517, 147.11388`; the marker's popup carries a note saying so.
-  Fix the value in the spreadsheet and re-run the script to clear the flag.
-- The **ARTC corridor** is an indicative alignment drawn through rail-served
-  centres between the Murray and Brisbane. No corridor geometry was supplied
-  with the asset data, so it is schematic context only. Replace the `CORRIDOR`
-  array in the page with a real alignment when one is available.
-- Several assets share exact coordinates (a structure and its viewing platform,
+- **DEECA** has a row (`Delegate River Tunnel Walk Upstream Viewing Platform
+  (10930)` in the spreadsheet) whose latitude is `-373.77517`, which is not a
+  real coordinate. The build script reads it as a misplaced decimal point and
+  plots it at `-37.377517, 147.11388`; that point's popup carries a note saying
+  so. Fix the value in the spreadsheet and re-run the script to clear the flag.
+- Several points share exact coordinates (a structure and its viewing platform,
   for example). Those markers are fanned onto a ~28 m ring so each stays
   individually clickable; the popup always reports the original coordinates.
