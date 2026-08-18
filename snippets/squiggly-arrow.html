@@ -1,0 +1,101 @@
+<!-- ============================================================
+     Animated squiggly arrow — points right and up.
+     Drop this whole block at the bottom of a left-hand text column
+     (works in plain HTML, WordPress custom HTML, Elementor, Squarespace).
+
+     Tweak with the CSS custom properties on .squiggly-arrow:
+       --sa-color   line colour
+       --sa-width   overall width (height follows automatically)
+       --sa-stroke  line thickness
+       --sa-speed   how long the draw-in takes
+     ============================================================ -->
+<div class="squiggly-arrow" aria-hidden="false">
+  <svg viewBox="0 0 220 120" role="img" aria-label="Arrow pointing to the list on the right"
+       fill="none" stroke="var(--sa-color)" stroke-width="var(--sa-stroke)"
+       stroke-linecap="round" stroke-linejoin="round">
+    <path class="sa-tail" pathLength="100"
+          d="M 6 97 C 26 74, 47 117, 68 93 S 106 68, 126 92 C 146 110, 158 86, 168 63 C 178 43, 187 31, 197 21" />
+    <path class="sa-head" pathLength="100" d="M 177 28 L 197 21 L 191 41" />
+  </svg>
+</div>
+
+<style>
+  .squiggly-arrow {
+    --sa-color: #4f9d8a;
+    --sa-width: 220px;
+    --sa-stroke: 5;
+    --sa-speed: 1.6s;
+    --sa-delay: 0.15s;
+    display: inline-block;
+    line-height: 0;
+  }
+  .squiggly-arrow svg {
+    width: var(--sa-width);
+    height: auto;
+    overflow: visible;
+  }
+  .squiggly-arrow .sa-tail,
+  .squiggly-arrow .sa-head {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+  }
+  /* .is-visible is added by the script below when the arrow scrolls into view */
+  .squiggly-arrow.is-visible .sa-tail {
+    animation: sa-draw var(--sa-speed) cubic-bezier(.65, .05, .36, 1) var(--sa-delay) forwards;
+  }
+  .squiggly-arrow.is-visible .sa-head {
+    animation: sa-draw calc(var(--sa-speed) * 0.28) ease-out
+               calc(var(--sa-delay) + var(--sa-speed) * 0.82) forwards;
+  }
+  .squiggly-arrow.is-visible svg {
+    animation: sa-drift 3.2s ease-in-out calc(var(--sa-delay) + var(--sa-speed) + 0.4s) infinite;
+  }
+  @keyframes sa-draw { to { stroke-dashoffset: 0; } }
+  @keyframes sa-drift {
+    0%, 100% { transform: translate(0, 0); }
+    50%      { transform: translate(6px, -6px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .squiggly-arrow .sa-tail,
+    .squiggly-arrow .sa-head { stroke-dashoffset: 0; animation: none !important; }
+    .squiggly-arrow.is-visible svg { animation: none !important; }
+  }
+  /* On narrow screens the cards stack below the text, so aim the arrow down-right. */
+  /* The flip goes on the container, never the svg — the drift keyframes animate
+     the svg's own transform and would cancel it out. */
+  @media (max-width: 768px) {
+    .squiggly-arrow {
+      --sa-width: 150px;
+      transform: scaleY(-1);
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    var arrows = document.querySelectorAll('.squiggly-arrow:not([data-sa-ready])');
+    if (!arrows.length) return;
+
+    if (!('IntersectionObserver' in window)) {
+      arrows.forEach(function (el) {
+        el.setAttribute('data-sa-ready', '');
+        el.classList.add('is-visible');
+      });
+      return;
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.4 });
+
+    arrows.forEach(function (el) {
+      el.setAttribute('data-sa-ready', '');
+      observer.observe(el);
+    });
+  })();
+</script>

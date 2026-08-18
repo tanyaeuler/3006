@@ -1,0 +1,454 @@
+<title>Squiggle Arrow Kit</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --ground: #f2f5f3;
+    --panel: #ffffff;
+    --panel-2: #e8ede9;
+    --ink: #1d2b26;
+    --ink-soft: #5a6d65;
+    --line: #d3ddd6;
+    --accent: #2f8a76;
+    --accent-soft: #d7e8e1;
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #101715;
+      --panel: #17211e;
+      --panel-2: #1e2a26;
+      --ink: #e7efea;
+      --ink-soft: #9bb0a7;
+      --line: #2b3a34;
+      --accent: #62c3a9;
+      --accent-soft: #22352f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #101715;
+    --panel: #17211e;
+    --panel-2: #1e2a26;
+    --ink: #e7efea;
+    --ink-soft: #9bb0a7;
+    --line: #2b3a34;
+    --accent: #62c3a9;
+    --accent-soft: #22352f;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: 'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .wrap {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: clamp(28px, 5vw, 64px) clamp(18px, 4vw, 40px) 88px;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(32px, 5vw, 52px);
+  }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 10px;
+  }
+
+  h1 {
+    font-family: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    font-size: clamp(30px, 5vw, 46px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 0 0 14px;
+    text-wrap: balance;
+  }
+
+  h2 {
+    font-family: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    font-size: clamp(20px, 2.6vw, 25px);
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+    text-wrap: balance;
+  }
+
+  h3 {
+    font-family: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 17px;
+    margin: 0 0 4px;
+  }
+
+  p { margin: 0 0 12px; max-width: 62ch; }
+  p:last-child { margin-bottom: 0; }
+  .lede { font-size: 19px; color: var(--ink-soft); }
+
+  section { display: flex; flex-direction: column; gap: 18px; }
+  .section-head { display: flex; flex-direction: column; gap: 2px; }
+  .section-head p { color: var(--ink-soft); margin: 0; }
+
+  /* ---------- in-context demo, mirroring the live page layout ---------- */
+
+  .demo {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: clamp(20px, 3.2vw, 34px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(20px, 3vw, 40px);
+    align-items: start;
+  }
+  @media (max-width: 720px) {
+    .demo { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  .demo-copy { display: flex; flex-direction: column; gap: 14px; }
+  .demo-copy p { font-size: 16px; color: var(--ink-soft); margin: 0; }
+  .demo-copy strong { color: var(--ink); }
+
+  .arrow-slot {
+    padding-top: 4px;
+    display: flex;
+    justify-content: flex-end;
+    padding-right: clamp(0px, 3vw, 28px);
+  }
+
+  .cards { display: flex; flex-direction: column; gap: 12px; }
+  .cards article {
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .cards p { font-size: 15px; color: var(--ink-soft); margin: 0; }
+  .cards article:first-child { box-shadow: 0 0 0 2px var(--accent-soft); }
+
+  /* ---------- the arrow itself (same rules as the snippet) ---------- */
+
+  .squiggly-arrow {
+    --sa-color: var(--accent);
+    --sa-width: 220px;
+    --sa-stroke: 5;
+    --sa-speed: 1.6s;
+    --sa-delay: 0.15s;
+    display: inline-block;
+    line-height: 0;
+  }
+  .squiggly-arrow svg { width: var(--sa-width); height: auto; overflow: visible; }
+  .squiggly-arrow .sa-tail,
+  .squiggly-arrow .sa-head { stroke-dasharray: 100; stroke-dashoffset: 100; }
+  .squiggly-arrow.is-visible .sa-tail {
+    animation: sa-draw var(--sa-speed) cubic-bezier(.65, .05, .36, 1) var(--sa-delay) forwards;
+  }
+  .squiggly-arrow.is-visible .sa-head {
+    animation: sa-draw calc(var(--sa-speed) * 0.28) ease-out
+               calc(var(--sa-delay) + var(--sa-speed) * 0.82) forwards;
+  }
+  .squiggly-arrow.is-visible svg {
+    animation: sa-drift 3.2s ease-in-out calc(var(--sa-delay) + var(--sa-speed) + 0.4s) infinite;
+  }
+  @keyframes sa-draw { to { stroke-dashoffset: 0; } }
+  @keyframes sa-drift {
+    0%, 100% { transform: translate(0, 0); }
+    50%      { transform: translate(6px, -6px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .squiggly-arrow .sa-tail,
+    .squiggly-arrow .sa-head { stroke-dashoffset: 0; animation: none !important; }
+    .squiggly-arrow.is-visible svg { animation: none !important; }
+  }
+
+  /* ---------- controls ---------- */
+
+  .controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px 22px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px clamp(18px, 3vw, 26px);
+  }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .field output {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  input[type="range"] { width: 100%; accent-color: var(--accent); }
+  input[type="color"] {
+    width: 100%; height: 34px; padding: 2px;
+    background: var(--panel-2);
+    border: 1px solid var(--line); border-radius: 8px;
+  }
+  .swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+  .swatches button {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 1px solid var(--line); cursor: pointer; padding: 0;
+  }
+  button.action {
+    font: inherit; font-weight: 600;
+    color: var(--ground); background: var(--accent);
+    border: 1px solid transparent; border-radius: 999px;
+    padding: 9px 18px; cursor: pointer;
+    align-self: start;
+  }
+  button.action:hover { filter: brightness(1.08); }
+  :is(button, input, a):focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* ---------- code ---------- */
+
+  pre {
+    margin: 0;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--ink);
+  }
+  code { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.92em; }
+  p code, li code {
+    background: var(--accent-soft);
+    padding: 1px 5px;
+    border-radius: 5px;
+  }
+  ul { margin: 0; padding-left: 20px; color: var(--ink-soft); }
+  li { margin-bottom: 6px; max-width: 62ch; }
+  .files { font-size: 15px; }
+  .files strong { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: var(--ink); }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Hopscotch OT · page furniture</p>
+    <h1>An arrow that draws itself toward the list</h1>
+    <p class="lede">
+      A hand-drawn squiggle that starts under the left-hand copy, wobbles across the
+      gutter and lifts into the card column on the right. It draws on when the section
+      scrolls into view, then keeps a slow drift so the eye follows it.
+    </p>
+  </header>
+
+  <section>
+    <div class="section-head">
+      <h2>In context</h2>
+      <p>The arrow sits in its own row beneath the copy, aligned to the right edge of the text column.</p>
+    </div>
+
+    <div class="demo" id="demo">
+      <div class="demo-copy">
+        <p>
+          Before your first appointment, our occupational therapists gather information
+          from parents and teachers so the initial consultation is focused on what matters
+          most to your family.
+        </p>
+        <p>
+          Sessions are delivered at our Hampton clinic, via telehealth, at your child's
+          school or kinder across Victoria's Bayside and Kingston.
+        </p>
+        <p><strong>Take a look at what individual OT at Hopscotch covers:</strong></p>
+
+        <div class="arrow-slot">
+          <div class="squiggly-arrow" id="arrow">
+            <svg viewBox="0 0 220 120" role="img"
+                 aria-label="Arrow pointing to the list of services on the right"
+                 fill="none" stroke="var(--sa-color)" stroke-width="var(--sa-stroke)"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path class="sa-tail" pathLength="100"
+                    d="M 6 97 C 26 74, 47 117, 68 93 S 106 68, 126 92 C 146 110, 158 86, 168 63 C 178 43, 187 31, 197 21" />
+              <path class="sa-head" pathLength="100" d="M 177 28 L 197 21 L 191 41" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="cards">
+        <article>
+          <h3>Emotional regulation and social development</h3>
+          <p>Neuro-affirming approaches that build on each child's strengths and interests.</p>
+        </article>
+        <article>
+          <h3>Sensory processing and interoception</h3>
+          <p>Understanding your child's sensory profile so home and classroom suit them.</p>
+        </article>
+        <article>
+          <h3>School-based support</h3>
+          <p>Classroom observations and collaboration with educators.</p>
+        </article>
+        <article>
+          <h3>Parent coaching</h3>
+          <p>You finish therapy with the confidence to support your child long-term.</p>
+        </article>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="field">
+        <label for="c-width">Width <output id="o-width">220px</output></label>
+        <input type="range" id="c-width" min="120" max="320" step="10" value="220">
+      </div>
+      <div class="field">
+        <label for="c-stroke">Line weight <output id="o-stroke">5</output></label>
+        <input type="range" id="c-stroke" min="2" max="10" step="0.5" value="5">
+      </div>
+      <div class="field">
+        <label for="c-speed">Draw time <output id="o-speed">1.6s</output></label>
+        <input type="range" id="c-speed" min="0.6" max="3" step="0.1" value="1.6">
+      </div>
+      <div class="field">
+        <label for="c-color">Colour</label>
+        <input type="color" id="c-color" value="#2f8a76">
+        <div class="swatches" id="swatches">
+          <button type="button" data-color="#2f8a76" style="background:#2f8a76" aria-label="Teal"></button>
+          <button type="button" data-color="#8bc34a" style="background:#8bc34a" aria-label="Leaf green"></button>
+          <button type="button" data-color="#f0a02c" style="background:#f0a02c" aria-label="Amber"></button>
+          <button type="button" data-color="#e2725b" style="background:#e2725b" aria-label="Coral"></button>
+          <button type="button" data-color="#5a6d65" style="background:#5a6d65" aria-label="Slate"></button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="replay">Animation</label>
+        <button class="action" id="replay" type="button">Replay the draw</button>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <section>
+    <div class="section-head">
+      <h2>Drop it in</h2>
+      <p>Paste this block into a Custom HTML widget at the bottom of the left column. No libraries, no build step.</p>
+    </div>
+    <pre><code>&lt;div class="squiggly-arrow"&gt;
+  &lt;svg viewBox="0 0 220 120" role="img"
+       aria-label="Arrow pointing to the list on the right"
+       fill="none" stroke="var(--sa-color)" stroke-width="var(--sa-stroke)"
+       stroke-linecap="round" stroke-linejoin="round"&gt;
+    &lt;path class="sa-tail" pathLength="100"
+          d="M 6 97 C 26 74, 47 117, 68 93 S 106 68, 126 92
+             C 146 110, 158 86, 168 63 C 178 43, 187 31, 197 21" /&gt;
+    &lt;path class="sa-head" pathLength="100" d="M 177 28 L 197 21 L 191 41" /&gt;
+  &lt;/svg&gt;
+&lt;/div&gt;</code></pre>
+    <p>
+      Full styles and the scroll trigger live in <code>snippets/squiggly-arrow.html</code> —
+      copy that file wholesale and it works as-is.
+    </p>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Dials</h2>
+      <p>Everything is a CSS custom property on <code>.squiggly-arrow</code>, so a theme override is one rule.</p>
+    </div>
+    <ul>
+      <li><code>--sa-color</code> — line colour. Defaults to the site's green; <code>currentColor</code> also works if you want it to inherit from surrounding text.</li>
+      <li><code>--sa-width</code> — overall width. Height follows the 11:6 aspect ratio automatically.</li>
+      <li><code>--sa-stroke</code> — line thickness, in viewBox units (5 reads like a marker at 220px wide).</li>
+      <li><code>--sa-speed</code> — how long the squiggle takes to draw. The arrowhead lands at 82% of that.</li>
+      <li><code>--sa-delay</code> — pause after the section enters the viewport.</li>
+    </ul>
+    <ul class="files">
+      <li><strong>snippets/squiggly-arrow.html</strong> — standalone HTML, CSS and scroll trigger for any site builder.</li>
+      <li><strong>src/components/ui/SquigglyArrow.jsx</strong> — the same arrow as a React component with <code>color</code>, <code>width</code>, <code>strokeWidth</code>, <code>duration</code>, <code>drift</code> and <code>flip</code> props.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Behaviour worth knowing</h2>
+    </div>
+    <ul>
+      <li>The draw fires once, when 40% of the arrow is in view — so it isn't already finished by the time a visitor scrolls down to it.</li>
+      <li>Under <code>prefers-reduced-motion</code> the finished arrow renders instantly with no drawing and no drift.</li>
+      <li>Below 768px the cards stack under the copy, so the snippet flips the arrow vertically to point down-right instead. Set <code>flip</code> or drop that media query if your layout differs.</li>
+      <li>The SVG carries an <code>aria-label</code>; if the arrow is purely decorative next to a heading that already says "take a look below", swap it for <code>aria-hidden="true"</code>.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+  (function () {
+    var arrow = document.getElementById('arrow');
+    var demo = document.getElementById('demo');
+
+    function play() {
+      arrow.classList.remove('is-visible');
+      void arrow.offsetWidth; /* restart the animations */
+      arrow.classList.add('is-visible');
+    }
+
+    if ('IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            play();
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.4 });
+      observer.observe(demo);
+    } else {
+      play();
+    }
+
+    document.getElementById('replay').addEventListener('click', play);
+
+    function bind(id, outId, prop, format) {
+      var input = document.getElementById(id);
+      var out = document.getElementById(outId);
+      function apply() {
+        var value = format(input.value);
+        arrow.style.setProperty(prop, value);
+        out.textContent = value;
+      }
+      input.addEventListener('input', apply);
+      apply();
+    }
+
+    bind('c-width', 'o-width', '--sa-width', function (v) { return v + 'px'; });
+    bind('c-stroke', 'o-stroke', '--sa-stroke', function (v) { return v; });
+    bind('c-speed', 'o-speed', '--sa-speed', function (v) { return v + 's'; });
+
+    var color = document.getElementById('c-color');
+    color.addEventListener('input', function () {
+      arrow.style.setProperty('--sa-color', color.value);
+    });
+    document.getElementById('swatches').addEventListener('click', function (event) {
+      var picked = event.target.closest('button[data-color]');
+      if (!picked) return;
+      color.value = picked.dataset.color;
+      arrow.style.setProperty('--sa-color', picked.dataset.color);
+    });
+  })();
+</script>
