@@ -3,8 +3,8 @@
   <title>Animated squiggly arrow</title>
   <!--
     Self-contained animated arrow: the animation lives inside the SVG (SMIL), so it
-    needs no CSS and no JavaScript and survives page builders that strip <style> and
-    <script>. Change the colour by editing the two stroke="#4f9d8a" values below.
+    needs no CSS and no JavaScript and survives page builders that strip style and
+    script tags. Change the colour by editing the two stroke="#4f9d8a" values below.
     If a browser ignores SMIL entirely, the finished arrow simply shows straight away.
   -->
   <g fill="none" stroke="#4f9d8a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">

@@ -1,0 +1,166 @@
+<!-- ============================================================
+     Bouncing ball on a dashed arc — the dashes appear as the ball passes.
+     Paste this whole block where you want the graphic (it fills its container).
+
+     Degrades safely, in this order:
+       styles + script kept  → runs when scrolled into view
+       script stripped       → runs on page load instead
+       styles also stripped  → the finished graphic: full dashed arc, ball at rest
+
+     If your builder strips style and script tags, use snippets/bouncing-ball.svg
+     instead — same animation, self-contained inside the SVG.
+
+     Colour, size and speed: the custom properties on .bounce-arc below. The
+     fill and stroke attributes in the markup are the no-CSS fallback, so keep
+     them in step if you recolour.
+     ============================================================ -->
+<div class="bounce-arc">
+  <svg viewBox="-1811 -238 1837 435" role="img"
+       aria-label="A ball bouncing along a dashed arc, rising to the right">
+    <defs>
+      <!-- The origin (0,0) is the ball's landing point, so with no CSS at all the
+           ball still sits exactly where the finished graphic wants it. -->
+      <path id="bx-path" fill="none"
+            d="M -1785 170 Q -1603 -96, -1420 168 Q -837 -592, -253 168 Q -155 16, 0 0" />
+      <mask id="bx-reveal">
+        <use class="bx-sweep" href="#bx-path" stroke="#fff" stroke-width="30" fill="none"
+             stroke-linecap="butt" stroke-dasharray="2226" stroke-dashoffset="0" />
+      </mask>
+    </defs>
+
+    <g mask="url(#bx-reveal)">
+      <use class="bx-line" href="#bx-path" fill="none" stroke="#4f4f4f" stroke-width="7.5"
+           stroke-linecap="round" stroke-dasharray="22 17" />
+    </g>
+
+    <!-- One transform per level: motion, then the resting hover, then the squash. -->
+    <g class="bx-ball">
+      <g class="bx-bob">
+        <g class="bx-squash">
+          <circle r="21" fill="#4f4f4f" />
+        </g>
+      </g>
+    </g>
+  </svg>
+</div>
+
+<style>
+  .bounce-arc {
+    --bx-color: #4f4f4f;
+    --bx-speed: 2.4s;
+    --bx-max-width: 900px;
+    display: block;
+    width: 100%;
+    max-width: var(--bx-max-width);
+    margin: 0 auto;
+    line-height: 0;
+  }
+  .bounce-arc svg { width: 100%; height: auto; overflow: visible; }
+  .bounce-arc .bx-line { stroke: var(--bx-color, #4f4f4f); }
+  .bounce-arc circle { fill: var(--bx-color, #4f4f4f); }
+
+  /* Reveal and motion share one set of keyframe stops — 25% and 77.08% are the two
+     bounces, 12.5% / 51.04% / 88.54% the apex and mid-flight points. Retiming one
+     without the other is what makes the dashes run ahead of the ball. */
+  .bounce-arc .bx-sweep {
+    animation: bx-reveal var(--bx-speed) both;
+  }
+  .bounce-arc .bx-ball {
+    offset-path: path("M -1785 170 Q -1603 -96, -1420 168 Q -837 -592, -253 168 Q -155 16, 0 0");
+    offset-rotate: 0deg;
+    animation: bx-travel var(--bx-speed) both;
+  }
+  .bounce-arc .bx-squash {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    animation: bx-squash var(--bx-speed) both;
+  }
+  .bounce-arc .bx-bob {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    animation: bx-bob 3s ease-in-out calc(var(--bx-speed) + 0.3s) infinite;
+  }
+
+  /* The optional script adds data-bx-wait so nothing starts until the graphic is
+     scrolled into view, and removes it when that happens. No script means no
+     attribute, and it simply runs on load. */
+  .bounce-arc[data-bx-wait] .bx-sweep,
+  .bounce-arc[data-bx-wait] .bx-ball,
+  .bounce-arc[data-bx-wait] .bx-squash,
+  .bounce-arc[data-bx-wait] .bx-bob {
+    animation-play-state: paused;
+  }
+
+  @keyframes bx-reveal {
+    0%      { stroke-dashoffset: 2226; animation-timing-function: cubic-bezier(.15,.55,.35,1); }
+    12.5%   { stroke-dashoffset: 1991; animation-timing-function: cubic-bezier(.65,0,.85,.45); }
+    25%     { stroke-dashoffset: 1757; animation-timing-function: cubic-bezier(.15,.55,.35,1); }
+    51.04%  { stroke-dashoffset: 1036; animation-timing-function: cubic-bezier(.65,0,.85,.45); }
+    77.08%  { stroke-dashoffset: 315;  animation-timing-function: cubic-bezier(.15,.55,.35,1); }
+    88.54%  { stroke-dashoffset: 157;  animation-timing-function: cubic-bezier(.15,.55,.35,1); }
+    100%    { stroke-dashoffset: 0; }
+  }
+  @keyframes bx-travel {
+    0%      { offset-distance: 0%;      animation-timing-function: cubic-bezier(.15,.55,.35,1); }
+    12.5%   { offset-distance: 10.53%;  animation-timing-function: cubic-bezier(.65,0,.85,.45); }
+    25%     { offset-distance: 21.05%;  animation-timing-function: cubic-bezier(.15,.55,.35,1); }
+    51.04%  { offset-distance: 53.45%;  animation-timing-function: cubic-bezier(.65,0,.85,.45); }
+    77.08%  { offset-distance: 85.85%;  animation-timing-function: cubic-bezier(.15,.55,.35,1); }
+    88.54%  { offset-distance: 92.93%;  animation-timing-function: cubic-bezier(.15,.55,.35,1); }
+    100%    { offset-distance: 100%; }
+  }
+  /* Squash on each impact: 25% and 77.08% of the run. */
+  @keyframes bx-squash {
+    0%, 22.5%, 29%, 74.5%, 81%, 100% { transform: scale(1, 1); }
+    25%, 77.08%                      { transform: scale(1.28, 0.74); }
+  }
+  @keyframes bx-bob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-7px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bounce-arc .bx-sweep,
+    .bounce-arc .bx-ball,
+    .bounce-arc .bx-squash,
+    .bounce-arc .bx-bob { animation: none !important; }
+    /* Straight to the finished graphic. */
+    .bounce-arc .bx-sweep { stroke-dashoffset: 0; }
+    .bounce-arc .bx-ball { offset-distance: 100%; }
+  }
+</style>
+
+<script>
+  /* Enhancement only: holds the run until the graphic scrolls into view.
+     Delete this block and it animates on page load instead. */
+  (function () {
+    function init() {
+      var items = document.querySelectorAll('.bounce-arc:not([data-bx-ready])');
+      if (!items.length || !('IntersectionObserver' in window)) return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.removeAttribute('data-bx-wait');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.35 });
+
+      Array.prototype.forEach.call(items, function (el) {
+        el.setAttribute('data-bx-ready', '');
+        /* Only hold what is still below the fold — something already on screen should
+           just run rather than wait for a scroll that never comes. */
+        if (el.getBoundingClientRect().top > window.innerHeight * 0.9) {
+          el.setAttribute('data-bx-wait', '');
+        }
+        observer.observe(el);
+      });
+    }
+
+    init();
+    document.addEventListener('DOMContentLoaded', init);
+    window.addEventListener('load', init);
+  })();
+</script>

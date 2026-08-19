@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     viewBox="-1811 -238 1837 435" width="1837" height="435"
+     role="img" aria-label="A ball bouncing along a dashed arc, rising to the right">
+  <title>Bouncing ball on a dashed arc</title>
+  <!--
+    Self-contained: the animation is SMIL, inside the SVG, so it needs no CSS and no
+    JavaScript and survives page builders that strip style and script tags.
+
+    The ball traces the arc and the dashes appear behind it as it passes. The mask and
+    the motion share the same keyTimes and keySplines, which is what keeps the reveal
+    edge exactly under the ball — retime one and you must retime the other identically.
+
+    The coordinate origin (0,0) is the ball's landing point, deliberately: animateMotion
+    is post-multiplied onto the transform attribute rather than replacing it, so a ball
+    positioned by a transform would end up doubly offset. With the origin here the ball
+    needs no transform at all, and a browser that ignores SMIL shows the finished
+    graphic — the whole dashed arc, ball resting at top right.
+
+    Colour: change the two #4f4f4f values.  Ball size: the circle's r.
+    To slow it down, scale the three dur="2.4s" / bob timings together.
+  -->
+  <defs>
+    <path id="ba-path" fill="none"
+          d="M -1785 170 Q -1603 -96, -1420 168 Q -837 -592, -253 168 Q -155 16, 0 0" />
+
+    <!-- A white stroke sweeping the same arc uncovers the dashes underneath. Butt caps
+         put the reveal edge exactly at the ball rather than ahead of it. -->
+    <mask id="ba-reveal">
+      <use xlink:href="#ba-path" href="#ba-path"
+           stroke="#fff" stroke-width="30" fill="none" stroke-linecap="butt"
+           stroke-dasharray="2226" stroke-dashoffset="0">
+        <animate attributeName="stroke-dashoffset"
+                 values="2226; 1991; 1757; 1036; 315; 157; 0"
+                 keyTimes="0; 0.125; 0.25; 0.5104; 0.7708; 0.8854; 1"
+                 calcMode="spline"
+                 keySplines="0.15 0.55 0.35 1;
+                             0.65 0 0.85 0.45;
+                             0.15 0.55 0.35 1;
+                             0.65 0 0.85 0.45;
+                             0.15 0.55 0.35 1;
+                             0.15 0.55 0.35 1"
+                 begin="0s" dur="2.4s" fill="freeze" />
+      </use>
+    </mask>
+  </defs>
+
+  <g mask="url(#ba-reveal)">
+    <use xlink:href="#ba-path" href="#ba-path" fill="none" stroke="#4f4f4f" stroke-width="7.5"
+         stroke-linecap="round" stroke-dasharray="22 17" />
+  </g>
+
+  <g>
+    <!-- keyPoints are the two apexes and the two bounces as fractions of path length,
+         so the easing can slow at each apex and quicken into each bounce. -->
+    <animateMotion begin="0s" dur="2.4s" fill="freeze" rotate="0" calcMode="spline"
+                   keyPoints="0; 0.1053; 0.2105; 0.5345; 0.8585; 0.9293; 1"
+                   keyTimes="0; 0.125; 0.25; 0.5104; 0.7708; 0.8854; 1"
+                   keySplines="0.15 0.55 0.35 1;
+                               0.65 0 0.85 0.45;
+                               0.15 0.55 0.35 1;
+                               0.65 0 0.85 0.45;
+                               0.15 0.55 0.35 1;
+                               0.15 0.55 0.35 1">
+      <mpath xlink:href="#ba-path" href="#ba-path" />
+    </animateMotion>
+
+    <!-- One transform per nesting level: motion above, then the resting hover, then
+         the squash on impact. Stacking them on one element would need additive="sum"
+         and they would fight. -->
+    <g>
+      <animateTransform attributeName="transform" type="translate"
+                        values="0 0; 0 -7; 0 0" keyTimes="0; 0.5; 1"
+                        dur="3s" begin="2.7s" repeatCount="indefinite" />
+      <g>
+        <animateTransform attributeName="transform" type="scale"
+                          values="1 1; 1.28 0.74; 1 1" keyTimes="0; 0.3; 1"
+                          dur="0.24s" begin="0.54s; 1.79s" fill="remove" />
+        <circle r="21" fill="#4f4f4f" />
+      </g>
+    </g>
+  </g>
+</svg>

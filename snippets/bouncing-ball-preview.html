@@ -1,0 +1,457 @@
+<title>Bounce Trail</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --ground: #f2f5f3;
+    --panel: #ffffff;
+    --panel-2: #e8ede9;
+    --ink: #1d2b26;
+    --ink-soft: #5a6d65;
+    --line: #d3ddd6;
+    --accent: #2f8a76;
+    --accent-soft: #d7e8e1;
+    --ball: #4f4f4f;
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #101715;
+      --panel: #17211e;
+      --panel-2: #1e2a26;
+      --ink: #e7efea;
+      --ink-soft: #9bb0a7;
+      --line: #2b3a34;
+      --accent: #62c3a9;
+      --accent-soft: #22352f;
+      --ball: #c9d4cf;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #101715;
+    --panel: #17211e;
+    --panel-2: #1e2a26;
+    --ink: #e7efea;
+    --ink-soft: #9bb0a7;
+    --line: #2b3a34;
+    --accent: #62c3a9;
+    --accent-soft: #22352f;
+    --ball: #c9d4cf;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: 'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .wrap {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: clamp(28px, 5vw, 64px) clamp(18px, 4vw, 40px) 88px;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(32px, 5vw, 52px);
+  }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 10px;
+  }
+  h1 {
+    font-family: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    font-size: clamp(30px, 5vw, 46px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 0 0 14px;
+    text-wrap: balance;
+  }
+  h2 {
+    font-family: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    font-size: clamp(20px, 2.6vw, 25px);
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+    text-wrap: balance;
+  }
+  h3 {
+    font-family: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 17px;
+    margin: 8px 0 4px;
+  }
+  p { margin: 0 0 12px; max-width: 64ch; }
+  p:last-child { margin-bottom: 0; }
+  .lede { font-size: 19px; color: var(--ink-soft); }
+
+  section { display: flex; flex-direction: column; gap: 18px; }
+  .section-head { display: flex; flex-direction: column; gap: 2px; }
+  .section-head p { color: var(--ink-soft); margin: 0; }
+
+  .stage {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: clamp(16px, 3vw, 30px) clamp(12px, 2.5vw, 26px);
+  }
+
+  /* ---------- the graphic (same rules as the snippet) ---------- */
+
+  .bounce-arc {
+    --bx-color: var(--ball);
+    --bx-speed: 2.4s;
+    --bx-max-width: 900px;
+    display: block;
+    width: 100%;
+    max-width: var(--bx-max-width);
+    margin: 0 auto;
+    line-height: 0;
+  }
+  .bounce-arc svg { width: 100%; height: auto; overflow: visible; }
+  .bounce-arc .bx-line { stroke: var(--bx-color, #4f4f4f); }
+  .bounce-arc circle { fill: var(--bx-color, #4f4f4f); }
+
+  .bx-sweep { animation: bx-reveal var(--bx-speed) both; }
+  .bx-ball {
+    offset-path: path("M -1785 170 Q -1603 -96, -1420 168 Q -837 -592, -253 168 Q -155 16, 0 0");
+    offset-rotate: 0deg;
+    animation: bx-travel var(--bx-speed) both;
+  }
+  .bx-squash, .bx-bob { transform-box: fill-box; transform-origin: 50% 50%; }
+  .bx-squash { animation: bx-squash var(--bx-speed) both; }
+  .bx-bob { animation: bx-bob 3s ease-in-out calc(var(--bx-speed) + 0.3s) infinite; }
+  .bounce-arc:not(.is-running) :is(.bx-sweep, .bx-ball, .bx-squash, .bx-bob) {
+    animation-play-state: paused;
+  }
+
+  @keyframes bx-reveal {
+    0%     { stroke-dashoffset: 2226; animation-timing-function: cubic-bezier(.15,.55,.35,1); }
+    12.5%  { stroke-dashoffset: 1991; animation-timing-function: cubic-bezier(.65,0,.85,.45); }
+    25%    { stroke-dashoffset: 1757; animation-timing-function: cubic-bezier(.15,.55,.35,1); }
+    51.04% { stroke-dashoffset: 1036; animation-timing-function: cubic-bezier(.65,0,.85,.45); }
+    77.08% { stroke-dashoffset: 315;  animation-timing-function: cubic-bezier(.15,.55,.35,1); }
+    88.54% { stroke-dashoffset: 157;  animation-timing-function: cubic-bezier(.15,.55,.35,1); }
+    100%   { stroke-dashoffset: 0; }
+  }
+  @keyframes bx-travel {
+    0%     { offset-distance: 0%;     animation-timing-function: cubic-bezier(.15,.55,.35,1); }
+    12.5%  { offset-distance: 10.53%; animation-timing-function: cubic-bezier(.65,0,.85,.45); }
+    25%    { offset-distance: 21.05%; animation-timing-function: cubic-bezier(.15,.55,.35,1); }
+    51.04% { offset-distance: 53.45%; animation-timing-function: cubic-bezier(.65,0,.85,.45); }
+    77.08% { offset-distance: 85.85%; animation-timing-function: cubic-bezier(.15,.55,.35,1); }
+    88.54% { offset-distance: 92.93%; animation-timing-function: cubic-bezier(.15,.55,.35,1); }
+    100%   { offset-distance: 100%; }
+  }
+  @keyframes bx-squash {
+    0%, 22.5%, 29%, 74.5%, 81%, 100% { transform: scale(1, 1); }
+    25%, 77.08%                      { transform: scale(1.28, 0.74); }
+  }
+  @keyframes bx-bob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-7px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bx-sweep, .bx-ball, .bx-squash, .bx-bob { animation: none !important; }
+    .bx-sweep { stroke-dashoffset: 0; }
+    .bx-ball { offset-distance: 100%; }
+  }
+
+  /* ---------- controls ---------- */
+
+  .controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+    gap: 16px 22px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px clamp(18px, 3vw, 26px);
+  }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .field output {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  input[type="range"] { width: 100%; accent-color: var(--accent); }
+  input[type="color"] {
+    width: 100%; height: 34px; padding: 2px;
+    background: var(--panel-2);
+    border: 1px solid var(--line); border-radius: 8px;
+  }
+  .swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+  .swatches button {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 1px solid var(--line); cursor: pointer; padding: 0;
+  }
+  button.action {
+    font: inherit; font-weight: 600;
+    color: var(--ground); background: var(--accent);
+    border: 1px solid transparent; border-radius: 999px;
+    padding: 9px 18px; cursor: pointer; align-self: start;
+  }
+  button.action:hover { filter: brightness(1.08); }
+  :is(button, input, a):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ---------- text blocks ---------- */
+
+  pre {
+    margin: 0;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--ink);
+  }
+  code { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.92em; }
+  p code, li code, td code {
+    background: var(--accent-soft);
+    padding: 1px 5px;
+    border-radius: 5px;
+  }
+  ul, ol { margin: 0; padding-left: 20px; color: var(--ink-soft); }
+  li { margin-bottom: 6px; max-width: 64ch; }
+  .files strong { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: var(--ink); }
+
+  .table-scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 460px; font-size: 15px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-soft); font-weight: 500;
+  }
+  td:first-child { color: var(--ink); font-weight: 600; }
+  td { color: var(--ink-soft); }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Hopscotch OT · page furniture</p>
+    <h1>A ball that lays its own track</h1>
+    <p class="lede">
+      The ball bounces up and to the right, and the dashed arc appears behind it as it
+      goes — nothing is drawn ahead of where the ball has been. It settles mid-flight at
+      the top right, which is exactly the static graphic you supplied.
+    </p>
+  </header>
+
+  <section>
+    <div class="section-head">
+      <h2>The animation</h2>
+      <p>Two bounces, a squash at each impact, then a slow hover once it lands.</p>
+    </div>
+
+    <div class="stage">
+      <div class="bounce-arc is-running" id="arc">
+        <svg viewBox="-1811 -238 1837 435" role="img"
+             aria-label="A ball bouncing along a dashed arc, rising to the right">
+          <defs>
+            <path id="bx-path" fill="none"
+                  d="M -1785 170 Q -1603 -96, -1420 168 Q -837 -592, -253 168 Q -155 16, 0 0" />
+            <mask id="bx-reveal">
+              <use class="bx-sweep" href="#bx-path" stroke="#fff" stroke-width="30" fill="none"
+                   stroke-linecap="butt" stroke-dasharray="2226" stroke-dashoffset="0" />
+            </mask>
+          </defs>
+          <g mask="url(#bx-reveal)">
+            <use class="bx-line" href="#bx-path" fill="none" stroke="#4f4f4f" stroke-width="7.5"
+                 stroke-linecap="round" stroke-dasharray="22 17" />
+          </g>
+          <g class="bx-ball">
+            <g class="bx-bob">
+              <g class="bx-squash">
+                <circle r="21" fill="#4f4f4f" />
+              </g>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="field">
+        <label for="c-speed">Run time <output id="o-speed">2.4s</output></label>
+        <input type="range" id="c-speed" min="1.2" max="5" step="0.1" value="2.4">
+      </div>
+      <div class="field">
+        <label for="c-width">Max width <output id="o-width">900px</output></label>
+        <input type="range" id="c-width" min="360" max="1100" step="20" value="900">
+      </div>
+      <div class="field">
+        <label for="c-color">Colour</label>
+        <input type="color" id="c-color" value="#4f4f4f">
+        <div class="swatches" id="swatches">
+          <button type="button" data-color="#4f4f4f" style="background:#4f4f4f" aria-label="Charcoal"></button>
+          <button type="button" data-color="#2f8a76" style="background:#2f8a76" aria-label="Teal"></button>
+          <button type="button" data-color="#8bc34a" style="background:#8bc34a" aria-label="Leaf green"></button>
+          <button type="button" data-color="#f0a02c" style="background:#f0a02c" aria-label="Amber"></button>
+          <button type="button" data-color="#e2725b" style="background:#e2725b" aria-label="Coral"></button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="replay">Animation</label>
+        <button class="action" id="replay" type="button">Replay</button>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <section>
+    <div class="section-head">
+      <h2>Two ways to drop it in</h2>
+      <p>Same graphic, different plumbing. Start with the SVG.</p>
+    </div>
+
+    <h3>1 &middot; Self-contained SVG — the safe one</h3>
+    <p>
+      <code>snippets/bouncing-ball.svg</code>. The animation is inside the SVG, so it
+      needs no CSS and no JavaScript and survives a builder that strips style and script
+      tags. Paste it inline, or upload it to your media library and place it as an
+      ordinary image. It runs once on page load rather than on scroll — the one thing it
+      gives up. To recolour, change the two <code>#4f4f4f</code> values.
+    </p>
+
+    <h3>2 &middot; HTML block — runs on scroll</h3>
+    <p>
+      <code>snippets/bouncing-ball.html</code>, pasted whole into a Custom HTML or Code
+      widget. It holds until the graphic is 35% in view, so a visitor sees the bounce
+      happen rather than arriving after it finished.
+    </p>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>What your builder keeps</th><th>What you get</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Everything</td><td>Runs when scrolled into view, hovers afterwards</td></tr>
+          <tr><td>Styles, no script</td><td>Runs on page load</td></tr>
+          <tr><td>Neither</td><td>The finished graphic — full dashed arc, ball at rest</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ul class="files">
+      <li><strong>snippets/bouncing-ball.svg</strong> — self-animating SVG, nothing external needed.</li>
+      <li><strong>snippets/bouncing-ball.html</strong> — HTML block with the scroll trigger and the CSS dials.</li>
+      <li><strong>src/components/ui/BouncingBall.jsx</strong> — React component with <code>color</code>, <code>maxWidth</code>, <code>duration</code> and <code>hover</code> props.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>How the reveal works</h2>
+      <p>Worth knowing before you retime anything.</p>
+    </div>
+    <p>
+      The dashed arc is drawn in full, then hidden behind a mask. Inside that mask, a
+      thick white stroke sweeps along the same path — as it advances it uncovers the
+      dashes underneath. Butt caps on the sweep put its leading edge exactly at the
+      ball's centre; a round cap would run half a stroke-width ahead and reveal dashes
+      the ball hasn't reached yet.
+    </p>
+    <p>
+      The sweep and the ball are two separate animations that have to agree, so both use
+      the same keyframe stops — <code>25%</code> and <code>77.08%</code> are the two
+      bounces, the others the apexes and mid-flight points — and the same easing pairs:
+      slow into each apex, quick into each bounce. <strong>Retime one and you must retime
+      the other identically</strong>, or the dashes drift ahead of the ball.
+    </p>
+    <pre><code>/* the two must stay in step */
+25%    { stroke-dashoffset: 1757; }   /* sweep: first bounce  */
+25%    { offset-distance: 21.05%; }   /* ball:  first bounce  */</code></pre>
+    <p>
+      In the SVG version the same numbers appear as <code>keyTimes</code> with
+      <code>values</code> on the mask and <code>keyPoints</code> on the motion.
+    </p>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Behaviour worth knowing</h2>
+    </div>
+    <ul>
+      <li>Under <code>prefers-reduced-motion</code> the finished graphic renders instantly — no bounce, no hover.</li>
+      <li>The graphic scales to its container's width; the ball and dashes scale with it. <code>--bx-max-width</code> stops it getting silly on a wide screen.</li>
+      <li>There is deliberate space below the arc: at each bounce the ball dips a radius below the dashes, and without that room it would be clipped. Your static reference needed no such margin.</li>
+      <li>The svg origin is the ball's landing point, not the top left. That is what lets the ball sit in the right place before any animation has been applied — and it is why the coordinates are negative.</li>
+      <li>Nothing in either file mentions style or script tags in a comment any more. A sanitiser matching those tags with a regex will happily eat from a mention in a comment through to the real closing tag, taking the graphic with it.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+  (function () {
+    var arc = document.getElementById('arc');
+
+    function play() {
+      arc.classList.remove('is-running');
+      void arc.offsetWidth; /* restart the animations */
+      arc.classList.add('is-running');
+    }
+
+    if ('IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) { play(); observer.unobserve(entry.target); }
+        });
+      }, { threshold: 0.35 });
+      observer.observe(arc);
+    } else {
+      play();
+    }
+
+    document.getElementById('replay').addEventListener('click', play);
+
+    function bind(id, outId, prop, format) {
+      var input = document.getElementById(id);
+      var out = document.getElementById(outId);
+      function apply() {
+        var value = format(input.value);
+        arc.style.setProperty(prop, value);
+        out.textContent = value;
+      }
+      input.addEventListener('input', apply);
+      apply();
+    }
+
+    bind('c-speed', 'o-speed', '--bx-speed', function (v) { return v + 's'; });
+    bind('c-width', 'o-width', '--bx-max-width', function (v) { return v + 'px'; });
+
+    var color = document.getElementById('c-color');
+    color.addEventListener('input', function () {
+      arc.style.setProperty('--bx-color', color.value);
+    });
+    document.getElementById('swatches').addEventListener('click', function (event) {
+      var picked = event.target.closest('button[data-color]');
+      if (!picked) return;
+      color.value = picked.dataset.color;
+      arc.style.setProperty('--bx-color', picked.dataset.color);
+    });
+  })();
+</script>
