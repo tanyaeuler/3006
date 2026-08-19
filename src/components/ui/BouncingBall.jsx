@@ -1,24 +1,27 @@
 import { useEffect, useRef, useState } from 'react'
+import { DASHES, DURATION } from './bounceDashes.js'
 
-const PATH = 'M -1785 170 Q -1603 -96, -1420 168 Q -837 -592, -253 168 Q -155 16, 0 0'
-const PATH_LENGTH = 2226
+const BALL_PATH =
+  'M -1785 170 Q -1603 -96, -1420 168 Q -837 -592, -253 168 Q -155 16, 0 0'
 
 /**
- * A ball bouncing along a dashed arc, rising to the right. The dashes are uncovered
- * as the ball passes over them, and the ball settles mid-flight at the top right.
+ * A ball bouncing along an arc, leaving a dashed trail behind it. Each dash appears
+ * only once the ball has passed over it, so the trail is laid down rather than
+ * uncovered — no mask is involved, which is what earlier versions got wrong.
  *
  * Runs when it scrolls into view. Honours prefers-reduced-motion by rendering the
  * finished graphic with no motion.
  *
- * The svg's origin (0,0) is the ball's landing point, which is what lets the ball
- * sit in the right place before any animation has been applied to it.
+ * The dash geometry and per-dash timings in bounceDashes.js are generated alongside
+ * the ball's motion by snippets/tools/bounce-dashes.mjs. Retiming the ball here puts
+ * the trail out of step; change that script and re-run it instead.
  */
 export default function BouncingBall({
   color = '#4f4f4f',
   maxWidth = 900,
-  duration = 2.4,
+  duration = DURATION,
   hover = true,
-  title = 'A ball bouncing along a dashed arc, rising to the right',
+  title = 'A ball bouncing along an arc, leaving a dashed trail behind it',
   className = '',
   style = {},
   ...props
@@ -53,32 +56,13 @@ export default function BouncingBall({
       style={{ '--bx-speed': `${duration}s`, maxWidth, ...style }}
     >
       <style>{CSS_RULES}</style>
+      {/* The origin (0,0) is the ball's landing point, which is what lets the ball sit
+          in the right place before any animation has been applied to it. */}
       <svg viewBox="-1811 -238 1837 435" role="img" aria-label={title} {...props}>
-        <defs>
-          <path id="bx-path" d={PATH} fill="none" />
-          <mask id="bx-reveal">
-            <use
-              className="bx-sweep"
-              href="#bx-path"
-              stroke="#fff"
-              strokeWidth="30"
-              fill="none"
-              strokeLinecap="butt"
-              strokeDasharray={PATH_LENGTH}
-              strokeDashoffset="0"
-            />
-          </mask>
-        </defs>
-
-        <g mask="url(#bx-reveal)">
-          <use
-            href="#bx-path"
-            fill="none"
-            stroke={color}
-            strokeWidth="7.5"
-            strokeLinecap="round"
-            strokeDasharray="22 17"
-          />
+        <g fill="none" stroke={color} strokeWidth="7.5" strokeLinecap="round">
+          {DASHES.map(({ d, at }, i) => (
+            <path key={i} className="bx-dash" style={{ '--bx-at': at }} d={d} />
+          ))}
         </g>
 
         {/* One transform per level: motion, then the resting hover, then the squash. */}
@@ -94,36 +78,34 @@ export default function BouncingBall({
   )
 }
 
-/* The reveal and the motion share one set of keyframe stops — 25% and 77.08% are the
-   two bounces. Retiming one without the other is what makes the dashes run ahead of
-   the ball. */
 const CSS_RULES = `
 .bx-root { display: block; width: 100%; margin: 0 auto; line-height: 0; }
 .bx-root svg { width: 100%; height: auto; overflow: visible; }
-/* The animations are always applied and start out paused, so the held state before
-   the run is the first keyframe — dashes hidden, ball at the start — rather than the
-   finished graphic, which would flash complete and then jump back. */
-.bx-sweep { animation: bx-reveal var(--bx-speed) both; }
+
+/* The animations are always applied and start out paused, so the held state before the
+   run is the first keyframe — trail hidden, ball at the start — rather than the finished
+   graphic, which would flash complete and then jump back.
+
+   Each dash carries its own --bx-at: how far through the run the ball passes it, as a
+   fraction, so the trail rescales with the duration. A 1ms duration makes a dash appear
+   rather than fade, which is what a dropped trail does. */
+.bx-dash { animation: bx-appear 1ms linear calc(var(--bx-at) * var(--bx-speed)) both; }
 .bx-ball {
-  offset-path: path("${PATH}");
+  offset-path: path("${BALL_PATH}");
   offset-rotate: 0deg;
   animation: bx-travel var(--bx-speed) both;
 }
 .bx-squash, .bx-bob { transform-box: fill-box; transform-origin: 50% 50%; }
 .bx-squash { animation: bx-squash var(--bx-speed) both; }
 .bx-bob { animation: bx-bob 3s ease-in-out calc(var(--bx-speed) + 0.3s) infinite; }
-.bx-root:not(.bx-running) .bx-sweep,
+.bx-root:not(.bx-running) .bx-dash,
 .bx-root:not(.bx-running) .bx-ball,
 .bx-root:not(.bx-running) .bx-squash,
 .bx-root:not(.bx-running) .bx-bob { animation-play-state: paused; }
-@keyframes bx-reveal {
-  0%     { stroke-dashoffset: 2226; animation-timing-function: cubic-bezier(.15,.55,.35,1); }
-  12.5%  { stroke-dashoffset: 1991; animation-timing-function: cubic-bezier(.65,0,.85,.45); }
-  25%    { stroke-dashoffset: 1757; animation-timing-function: cubic-bezier(.15,.55,.35,1); }
-  51.04% { stroke-dashoffset: 1036; animation-timing-function: cubic-bezier(.65,0,.85,.45); }
-  77.08% { stroke-dashoffset: 315;  animation-timing-function: cubic-bezier(.15,.55,.35,1); }
-  88.54% { stroke-dashoffset: 157;  animation-timing-function: cubic-bezier(.15,.55,.35,1); }
-  100%   { stroke-dashoffset: 0; }
+
+@keyframes bx-appear {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 @keyframes bx-travel {
   0%     { offset-distance: 0%;     animation-timing-function: cubic-bezier(.15,.55,.35,1); }
@@ -134,6 +116,7 @@ const CSS_RULES = `
   88.54% { offset-distance: 92.93%; animation-timing-function: cubic-bezier(.15,.55,.35,1); }
   100%   { offset-distance: 100%; }
 }
+/* 25% and 77.08% of the run are the two bounces. */
 @keyframes bx-squash {
   0%, 22.5%, 29%, 74.5%, 81%, 100% { transform: scale(1, 1); }
   25%, 77.08%                      { transform: scale(1.28, 0.74); }
@@ -144,8 +127,8 @@ const CSS_RULES = `
 }
 /* Whenever motion is unwanted, the finished graphic stands in for it. */
 @media (prefers-reduced-motion: reduce) {
-  .bx-sweep, .bx-ball, .bx-squash, .bx-bob { animation: none !important; }
-  .bx-sweep { stroke-dashoffset: 0; }
+  .bx-dash, .bx-ball, .bx-squash, .bx-bob { animation: none !important; }
+  .bx-dash { opacity: 1; }
   .bx-ball { offset-distance: 100%; }
 }
 `
