@@ -230,6 +230,14 @@
   }
   ul, ol { margin: 0; padding-left: 20px; color: var(--ink-soft); }
   li { margin-bottom: 6px; max-width: 64ch; }
+  .tag {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.86em;
+    background: var(--accent-soft);
+    padding: 1px 5px;
+    border-radius: 5px;
+    color: var(--ink);
+  }
   .files strong { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: var(--ink); }
 
   .table-scroll { overflow-x: auto; }
@@ -442,6 +450,53 @@
       It measures the arc, fits a whole number of dashes to each flight so every segment
       starts and ends flush with one, works out when the ball passes each, and writes the
       result into the SVG, the HTML block, this page and the React component's data file.
+    </p>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Putting it on the site</h2>
+      <p>One of these three, and the first one is the one you want.</p>
+    </div>
+
+    <p>
+      <strong>Not as a CSS background image.</strong> An SVG's animation timeline starts
+      when the browser rasterises the image, not when the image scrolls into view, and
+      nothing outside the file can reach in to hold it back. On a long page the run is
+      spent while the visitor is still at the top; they scroll down and arrive to the
+      finished arc. Reproduced in Chromium — five seconds at the top of the page is enough.
+    </p>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Route</th><th>File</th><th>Behaviour</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Code module</td>
+            <td><code>bouncing-ball.html</code></td>
+            <td>Runs once, when the graphic is in view. Can be positioned behind content so it still reads as a background.</td>
+          </tr>
+          <tr>
+            <td>Background image</td>
+            <td><code>bouncing-ball-loop.svg</code></td>
+            <td>Repeats every 4.4s, so there is always another run coming. Cannot wait until it is in view.</td>
+          </tr>
+          <tr>
+            <td>Image module</td>
+            <td><code>bouncing-ball.svg</code></td>
+            <td>Runs once, on page load. Fine above the fold, no good below it.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Divi's Code module keeps <span class="tag">style</span> and
+      <span class="tag">script</span>; its Text module strips them. Step-by-step
+      instructions, including the CSS to sit the graphic behind a section's content, are in
+      <code>snippets/DIVI-SETUP.md</code>.
     </p>
   </section>
 
