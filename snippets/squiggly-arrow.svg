@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 120" width="220" height="120"
+     role="img" aria-label="Arrow pointing to the list on the right">
+  <title>Animated squiggly arrow</title>
+  <!--
+    Self-contained animated arrow: the animation lives inside the SVG (SMIL), so it
+    needs no CSS and no JavaScript and survives page builders that strip <style> and
+    <script>. Change the colour by editing the two stroke="#4f9d8a" values below.
+    If a browser ignores SMIL entirely, the finished arrow simply shows straight away.
+  -->
+  <g fill="none" stroke="#4f9d8a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <animateTransform attributeName="transform" type="translate"
+                      values="0 0; 6 -6; 0 0" keyTimes="0; 0.5; 1"
+                      dur="3.2s" begin="2.2s" repeatCount="indefinite" />
+
+    <path pathLength="100" stroke-dasharray="100" stroke-dashoffset="0"
+          d="M 6 97 C 26 74, 47 117, 68 93 S 106 68, 126 92 C 146 110, 158 86, 168 63 C 178 43, 187 31, 197 21">
+      <animate attributeName="stroke-dashoffset" values="100; 0" keyTimes="0; 1"
+               calcMode="spline" keySplines="0.65 0.05 0.36 1"
+               begin="0.15s" dur="1.6s" fill="freeze" />
+      <set attributeName="stroke-dashoffset" to="100" begin="0s" end="0.15s" />
+    </path>
+
+    <path pathLength="100" stroke-dasharray="100" stroke-dashoffset="0"
+          d="M 177 28 L 197 21 L 191 41">
+      <animate attributeName="stroke-dashoffset" values="100; 0" keyTimes="0; 1"
+               calcMode="spline" keySplines="0.4 0 0.2 1"
+               begin="1.46s" dur="0.45s" fill="freeze" />
+      <set attributeName="stroke-dashoffset" to="100" begin="0s" end="1.46s" />
+    </path>
+  </g>
+</svg>

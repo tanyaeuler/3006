@@ -240,7 +240,11 @@
     padding: 1px 5px;
     border-radius: 5px;
   }
-  ul { margin: 0; padding-left: 20px; color: var(--ink-soft); }
+  ul, ol { margin: 0; padding-left: 20px; color: var(--ink-soft); }
+  ol.checks { display: flex; flex-direction: column; gap: 12px; }
+  ol.checks li::marker { color: var(--accent); font-variant-numeric: tabular-nums; }
+  ol.checks strong { color: var(--ink); }
+  h3 { margin-top: 8px; }
   li { margin-bottom: 6px; max-width: 62ch; }
   .files { font-size: 15px; }
   .files strong { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: var(--ink); }
@@ -346,41 +350,128 @@
 
   <section>
     <div class="section-head">
-      <h2>Drop it in</h2>
-      <p>Paste this block into a Custom HTML widget at the bottom of the left column. No libraries, no build step.</p>
+      <h2>If it isn't showing up</h2>
+      <p>Nearly always the page builder, not the arrow. Work down this list.</p>
     </div>
-    <pre><code>&lt;div class="squiggly-arrow"&gt;
-  &lt;svg viewBox="0 0 220 120" role="img"
-       aria-label="Arrow pointing to the list on the right"
-       fill="none" stroke="var(--sa-color)" stroke-width="var(--sa-stroke)"
-       stroke-linecap="round" stroke-linejoin="round"&gt;
-    &lt;path class="sa-tail" pathLength="100"
+    <ol class="checks">
+      <li>
+        <strong>The block was pasted into a rich-text widget.</strong>
+        Elementor's Text Editor, the WordPress paragraph block and Squarespace's text
+        block all strip <code>&lt;style&gt;</code> and <code>&lt;script&gt;</code> on save.
+        Use a <em>Custom HTML</em> / <em>Code</em> widget instead — or use the
+        self-contained SVG below, which needs neither.
+      </li>
+      <li>
+        <strong>Only part of the block made it across.</strong>
+        The <code>&lt;div&gt;</code>, the <code>&lt;style&gt;</code> and the
+        <code>&lt;script&gt;</code> are one unit. The svg on its own has nothing to
+        size or animate it.
+      </li>
+      <li>
+        <strong>A theme rule is overriding it.</strong>
+        Inspect the path and look for <code>stroke-dashoffset: 100</code> that never
+        reaches 0, or a <code>stroke: none</code> from a global svg rule. A theme that
+        sets <code>svg { fill: currentColor }</code> is harmless; one that sets
+        <code>stroke</code> is not.
+      </li>
+      <li>
+        <strong>The row it sits in has no height.</strong>
+        An empty flex or grid cell can collapse to 0 and clip the arrow away. Give the
+        wrapper a <code>min-height</code> of about 130px and check
+        <code>overflow</code> isn't hidden on the column.
+      </li>
+      <li>
+        <strong>It's inside a tab, accordion or slider.</strong>
+        Content injected after page load can miss the scroll trigger. The updated
+        snippet re-scans on <code>load</code> for exactly this, but the SVG version
+        sidesteps it entirely.
+      </li>
+    </ol>
+    <p>
+      Whatever the cause, the arrow no longer disappears when something is stripped:
+      no script means it draws on page load instead, and no styles at all still leaves
+      a static arrow at the right size and colour.
+    </p>
+  </section>
+
+  <hr>
+
+  <section>
+    <div class="section-head">
+      <h2>Two ways to drop it in</h2>
+      <p>Both are in the repo. Start with the SVG if the HTML block gave you trouble.</p>
+    </div>
+
+    <h3>1 &middot; Self-contained SVG — the safe one</h3>
+    <p>
+      The animation lives inside the SVG, so it survives builders that strip
+      <code>&lt;style&gt;</code> and <code>&lt;script&gt;</code>. Paste
+      <code>snippets/squiggly-arrow.svg</code> inline, or upload it to your media
+      library and place it as an ordinary image. It animates once on page load rather
+      than on scroll — the one thing it gives up.
+    </p>
+    <pre><code>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 120" width="220" height="120"
+     role="img" aria-label="Arrow pointing to the list on the right"&gt;
+  &lt;g fill="none" stroke="#4f9d8a" stroke-width="5"
+     stroke-linecap="round" stroke-linejoin="round"&gt;
+    &lt;animateTransform attributeName="transform" type="translate"
+                      values="0 0; 6 -6; 0 0" keyTimes="0; 0.5; 1"
+                      dur="3.2s" begin="2.2s" repeatCount="indefinite" /&gt;
+    &lt;path pathLength="100" stroke-dasharray="100" stroke-dashoffset="0"
           d="M 6 97 C 26 74, 47 117, 68 93 S 106 68, 126 92
-             C 146 110, 158 86, 168 63 C 178 43, 187 31, 197 21" /&gt;
+             C 146 110, 158 86, 168 63 C 178 43, 187 31, 197 21"&gt;
+      &lt;animate attributeName="stroke-dashoffset" values="100; 0" keyTimes="0; 1"
+               calcMode="spline" keySplines="0.65 0.05 0.36 1"
+               begin="0.15s" dur="1.6s" fill="freeze" /&gt;
+      &lt;set attributeName="stroke-dashoffset" to="100" begin="0s" end="0.15s" /&gt;
+    &lt;/path&gt;
+    &lt;path pathLength="100" stroke-dasharray="100" stroke-dashoffset="0"
+          d="M 177 28 L 197 21 L 191 41"&gt;
+      &lt;animate attributeName="stroke-dashoffset" values="100; 0" keyTimes="0; 1"
+               calcMode="spline" keySplines="0.4 0 0.2 1"
+               begin="1.46s" dur="0.45s" fill="freeze" /&gt;
+      &lt;set attributeName="stroke-dashoffset" to="100" begin="0s" end="1.46s" /&gt;
+    &lt;/path&gt;
+  &lt;/g&gt;
+&lt;/svg&gt;</code></pre>
+    <p>To recolour it, change both <code>stroke="#4f9d8a"</code> values. Nothing else.</p>
+
+    <h3>2 &middot; HTML block — draws on scroll</h3>
+    <p>
+      <code>snippets/squiggly-arrow.html</code>, pasted whole into a Custom HTML widget.
+      Holds until the arrow is scrolled into view, then draws and drifts. The
+      <code>stroke</code> and <code>stroke-width</code> attributes on the svg are the
+      no-CSS fallback — keep them in step with the custom properties if you recolour it.
+    </p>
+    <pre><code>&lt;div class="squiggly-arrow"&gt;
+  &lt;svg viewBox="0 0 220 120" width="220" height="120" role="img"
+       aria-label="Arrow pointing to the list on the right"
+       fill="none" stroke="#4f9d8a" stroke-width="5"
+       stroke-linecap="round" stroke-linejoin="round"&gt;
+    &lt;path class="sa-tail" pathLength="100" d="M 6 97 C 26 74, …" /&gt;
     &lt;path class="sa-head" pathLength="100" d="M 177 28 L 197 21 L 191 41" /&gt;
   &lt;/svg&gt;
-&lt;/div&gt;</code></pre>
-    <p>
-      Full styles and the scroll trigger live in <code>snippets/squiggly-arrow.html</code> —
-      copy that file wholesale and it works as-is.
-    </p>
+&lt;/div&gt;
+&lt;style&gt;  /* … see the file … */ &lt;/style&gt;
+&lt;script&gt; /* … optional scroll trigger … */ &lt;/script&gt;</code></pre>
   </section>
 
   <section>
     <div class="section-head">
       <h2>Dials</h2>
-      <p>Everything is a CSS custom property on <code>.squiggly-arrow</code>, so a theme override is one rule.</p>
+      <p>On the HTML version, everything is a CSS custom property on <code>.squiggly-arrow</code>.</p>
     </div>
     <ul>
-      <li><code>--sa-color</code> — line colour. Defaults to the site's green; <code>currentColor</code> also works if you want it to inherit from surrounding text.</li>
+      <li><code>--sa-color</code> — line colour. Also update the svg's <code>stroke</code> attribute so the no-CSS fallback matches.</li>
       <li><code>--sa-width</code> — overall width. Height follows the 11:6 aspect ratio automatically.</li>
       <li><code>--sa-stroke</code> — line thickness, in viewBox units (5 reads like a marker at 220px wide).</li>
       <li><code>--sa-speed</code> — how long the squiggle takes to draw. The arrowhead lands at 82% of that.</li>
-      <li><code>--sa-delay</code> — pause after the section enters the viewport.</li>
+      <li><code>--sa-delay</code> — pause before the draw starts.</li>
     </ul>
     <ul class="files">
-      <li><strong>snippets/squiggly-arrow.html</strong> — standalone HTML, CSS and scroll trigger for any site builder.</li>
-      <li><strong>src/components/ui/SquigglyArrow.jsx</strong> — the same arrow as a React component with <code>color</code>, <code>width</code>, <code>strokeWidth</code>, <code>duration</code>, <code>drift</code> and <code>flip</code> props.</li>
+      <li><strong>snippets/squiggly-arrow.svg</strong> — self-animating SVG, no CSS or JS required.</li>
+      <li><strong>snippets/squiggly-arrow.html</strong> — HTML block with the scroll trigger and the CSS dials.</li>
+      <li><strong>src/components/ui/SquigglyArrow.jsx</strong> — React component with <code>color</code>, <code>width</code>, <code>strokeWidth</code>, <code>duration</code>, <code>drift</code> and <code>flip</code> props.</li>
     </ul>
   </section>
 
@@ -389,9 +480,9 @@
       <h2>Behaviour worth knowing</h2>
     </div>
     <ul>
-      <li>The draw fires once, when 40% of the arrow is in view — so it isn't already finished by the time a visitor scrolls down to it.</li>
+      <li>In the HTML version the draw fires once, when 40% of the arrow is in view — so it isn't already finished by the time a visitor scrolls down to it. An arrow that is already on screen at load plays straight away rather than waiting for a scroll that never comes.</li>
       <li>Under <code>prefers-reduced-motion</code> the finished arrow renders instantly with no drawing and no drift.</li>
-      <li>Below 768px the cards stack under the copy, so the snippet flips the arrow vertically to point down-right instead. Set <code>flip</code> or drop that media query if your layout differs.</li>
+      <li>Below 768px the cards stack under the copy, so the snippet flips the arrow vertically to point down-right instead. Drop that media query if your layout differs. The flip has to sit on the container, not the svg — a CSS animation overrides an inline transform, so the drift would cancel it out.</li>
       <li>The SVG carries an <code>aria-label</code>; if the arrow is purely decorative next to a heading that already says "take a look below", swap it for <code>aria-hidden="true"</code>.</li>
     </ul>
   </section>

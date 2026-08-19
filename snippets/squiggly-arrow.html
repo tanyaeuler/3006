@@ -1,17 +1,20 @@
 <!-- ============================================================
-     Animated squiggly arrow — points right and up.
-     Drop this whole block at the bottom of a left-hand text column
-     (works in plain HTML, WordPress custom HTML, Elementor, Squarespace).
+     Animated squiggly arrow — travels right, then lifts up.
+     Paste this whole block at the bottom of the left-hand text column.
 
-     Tweak with the CSS custom properties on .squiggly-arrow:
-       --sa-color   line colour
-       --sa-width   overall width (height follows automatically)
-       --sa-stroke  line thickness
-       --sa-speed   how long the draw-in takes
+     Degrades safely, in this order:
+       styles + script kept  → draws itself in when scrolled into view, then drifts
+       script stripped       → draws itself in on page load instead
+       styles also stripped  → plain static arrow, still the right colour and size
+
+     Colour and size: edit the CSS custom properties under .squiggly-arrow below.
+     The stroke="#4f9d8a" and stroke-width="5" attributes on the <svg> are the
+     no-CSS fallback — keep them in step with --sa-color and --sa-stroke.
      ============================================================ -->
-<div class="squiggly-arrow" aria-hidden="false">
-  <svg viewBox="0 0 220 120" role="img" aria-label="Arrow pointing to the list on the right"
-       fill="none" stroke="var(--sa-color)" stroke-width="var(--sa-stroke)"
+<div class="squiggly-arrow">
+  <svg viewBox="0 0 220 120" width="220" height="120" role="img"
+       aria-label="Arrow pointing to the list on the right"
+       fill="none" stroke="#4f9d8a" stroke-width="5"
        stroke-linecap="round" stroke-linejoin="round">
     <path class="sa-tail" pathLength="100"
           d="M 6 97 C 26 74, 47 117, 68 93 S 106 68, 126 92 C 146 110, 158 86, 168 63 C 178 43, 187 31, 197 21" />
@@ -33,36 +36,56 @@
     width: var(--sa-width);
     height: auto;
     overflow: visible;
+    /* The var() fallbacks matter: if this rule survives but the one above is
+       overwritten by a theme, the arrow still draws in its own colour. */
+    stroke: var(--sa-color, #4f9d8a);
+    stroke-width: var(--sa-stroke, 5);
   }
+
+  /* The draw-in runs on its own, with no JavaScript involved. */
   .squiggly-arrow .sa-tail,
   .squiggly-arrow .sa-head {
     stroke-dasharray: 100;
-    stroke-dashoffset: 100;
+    animation-fill-mode: both;
   }
-  /* .is-visible is added by the script below when the arrow scrolls into view */
-  .squiggly-arrow.is-visible .sa-tail {
-    animation: sa-draw var(--sa-speed) cubic-bezier(.65, .05, .36, 1) var(--sa-delay) forwards;
+  .squiggly-arrow .sa-tail {
+    animation: sa-draw var(--sa-speed) cubic-bezier(.65, .05, .36, 1) var(--sa-delay) both;
   }
-  .squiggly-arrow.is-visible .sa-head {
+  .squiggly-arrow .sa-head {
     animation: sa-draw calc(var(--sa-speed) * 0.28) ease-out
-               calc(var(--sa-delay) + var(--sa-speed) * 0.82) forwards;
+               calc(var(--sa-delay) + var(--sa-speed) * 0.82) both;
   }
-  .squiggly-arrow.is-visible svg {
+  .squiggly-arrow svg {
     animation: sa-drift 3.2s ease-in-out calc(var(--sa-delay) + var(--sa-speed) + 0.4s) infinite;
   }
-  @keyframes sa-draw { to { stroke-dashoffset: 0; } }
+
+  /* The optional script below adds data-sa-wait so the draw holds until the arrow
+     is actually scrolled into view, and removes it when that happens. No script
+     means no attribute, and the animation just plays on load. */
+  .squiggly-arrow[data-sa-wait] .sa-tail,
+  .squiggly-arrow[data-sa-wait] .sa-head,
+  .squiggly-arrow[data-sa-wait] svg {
+    animation-play-state: paused;
+  }
+
+  @keyframes sa-draw {
+    from { stroke-dashoffset: 100; }
+    to   { stroke-dashoffset: 0; }
+  }
   @keyframes sa-drift {
     0%, 100% { transform: translate(0, 0); }
     50%      { transform: translate(6px, -6px); }
   }
+
   @media (prefers-reduced-motion: reduce) {
     .squiggly-arrow .sa-tail,
-    .squiggly-arrow .sa-head { stroke-dashoffset: 0; animation: none !important; }
-    .squiggly-arrow.is-visible svg { animation: none !important; }
+    .squiggly-arrow .sa-head,
+    .squiggly-arrow svg { animation: none !important; }
   }
-  /* On narrow screens the cards stack below the text, so aim the arrow down-right. */
-  /* The flip goes on the container, never the svg — the drift keyframes animate
-     the svg's own transform and would cancel it out. */
+
+  /* Flip goes on the container, never the svg — the drift keyframes animate the
+     svg's own transform and would cancel it out. Below 768px the cards usually
+     stack under the copy, so the arrow points down-right instead. */
   @media (max-width: 768px) {
     .squiggly-arrow {
       --sa-width: 150px;
@@ -72,30 +95,38 @@
 </style>
 
 <script>
+  /* Purely an enhancement: holds the draw-in until the arrow scrolls into view.
+     Safe to delete this whole block — the arrow then animates on page load. */
   (function () {
-    var arrows = document.querySelectorAll('.squiggly-arrow:not([data-sa-ready])');
-    if (!arrows.length) return;
+    function init(root) {
+      var arrows = (root || document).querySelectorAll('.squiggly-arrow:not([data-sa-ready])');
+      if (!arrows.length || !('IntersectionObserver' in window)) return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    if (!('IntersectionObserver' in window)) {
-      arrows.forEach(function (el) {
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.removeAttribute('data-sa-wait');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.4 });
+
+      Array.prototype.forEach.call(arrows, function (el) {
         el.setAttribute('data-sa-ready', '');
-        el.classList.add('is-visible');
+        /* Only hold arrows that are still below the fold; one already on screen
+           should just play rather than wait for a scroll that never comes. */
+        if (el.getBoundingClientRect().top > window.innerHeight * 0.9) {
+          el.setAttribute('data-sa-wait', '');
+        }
+        observer.observe(el);
       });
-      return;
     }
 
-    var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.4 });
-
-    arrows.forEach(function (el) {
-      el.setAttribute('data-sa-ready', '');
-      observer.observe(el);
-    });
+    init();
+    /* Builders that inject content after load (sliders, tabs, lazy sections) get a
+       second pass, so a late-arriving arrow is still picked up. */
+    document.addEventListener('DOMContentLoaded', function () { init(); });
+    window.addEventListener('load', function () { init(); });
   })();
 </script>
