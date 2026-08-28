@@ -158,6 +158,25 @@ def read_corridors(path):
     return corridors, problems
 
 
+def embed_json(value):
+    """Serialise `value` for embedding inside an HTML <script> block.
+
+    json.dumps does not escape '<', so a worksheet named something containing
+    '</script>' would close the tag early and let spreadsheet content run as
+    markup in the published page. Escaping the angle brackets and ampersand as
+    \\uXXXX keeps the value an identical JavaScript string while making that
+    impossible. U+2028 and U+2029 are escaped because JavaScript treats them as
+    literal line terminators inside string literals.
+    """
+    text = json.dumps(value, ensure_ascii=False, indent=2)
+    for char, escape in (
+        ("<", "\\u003c"), (">", "\\u003e"), ("&", "\\u0026"),
+        ("\u2028", "\\u2028"), ("\u2029", "\\u2029"),
+    ):
+        text = text.replace(char, escape)
+    return text
+
+
 def main():
     if len(sys.argv) != 3:
         sys.exit(__doc__)
@@ -173,8 +192,8 @@ def main():
 
     block = (
         f"{START}\n"
-        f"const PROJECTS = {json.dumps(projects, ensure_ascii=False, indent=2)};\n\n"
-        f"const CORRIDORS = {json.dumps(corridors, ensure_ascii=False, indent=2)};\n"
+        f"const PROJECTS = {embed_json(projects)};\n\n"
+        f"const CORRIDORS = {embed_json(corridors)};\n"
         f"{END}"
     )
     head, rest = html.split(START, 1)

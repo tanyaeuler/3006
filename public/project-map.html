@@ -2365,16 +2365,23 @@ function escapeHtml(value) {
   ));
 }
 
+/* Colours are interpolated into style attributes, so they never leave this
+   whitelist even if the data block is ever generated from something less
+   trusted than the project spreadsheet. */
+function safeColour(value) {
+  return /^#[0-9a-f]{3,8}$/i.test(String(value)) ? value : '#64748B';
+}
+
 /* Points are identified by their project, never by the individual asset name. */
 function popupHtml(asset) {
   const coords = asset.lat.toFixed(6) + ', ' + asset.lng.toFixed(6);
   return (
-    '<div class="pop-name"><i style="background:' + asset.colour + '"></i>' + escapeHtml(asset.project) + '</div>' +
+    '<div class="pop-name"><i style="background:' + safeColour(asset.colour) + '"></i>' + escapeHtml(asset.project) + '</div>' +
     '<div class="pop-coords">' + coords + '</div>' +
     (asset.note ? '<div class="pop-note">' + escapeHtml(asset.note) + '</div>' : '') +
     '<div class="pop-links">' +
-      '<a href="https://www.google.com/maps/search/?api=1&query=' + asset.lat + ',' + asset.lng + '" target="_blank" rel="noopener">Open in Google Maps</a>' +
-      '<button type="button" data-copy="' + coords + '">Copy coordinates</button>' +
+      '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(asset.lat + ',' + asset.lng) + '" target="_blank" rel="noopener">Open in Google Maps</a>' +
+      '<button type="button" data-copy="' + escapeHtml(coords) + '">Copy coordinates</button>' +
     '</div>'
   );
 }
@@ -2450,7 +2457,7 @@ projectState.forEach((state, name) => {
      that note instead of a marker count. */
   li.innerHTML =
     '<button class="row" type="button" aria-pressed="true" data-project="' + escapeHtml(name) + '">' +
-      '<span class="dot" style="background:' + state.colour + '"></span>' +
+      '<span class="dot" style="background:' + safeColour(state.colour) + '"></span>' +
       '<span class="label">' + escapeHtml(name) +
         (state.note ? ' <span class="note">(' + escapeHtml(state.note) + ')</span>' : '') +
       '</span>' +
@@ -2616,7 +2623,10 @@ function readHash() {
 
   parts.slice(1).forEach(part => {
     const [key, value] = part.split('=');
-    if (key === 'b' && basemaps[value]) {
+    /* hasOwnProperty, not a bare lookup: `basemaps.toString` and friends are
+       inherited and truthy, so a crafted #...&b=toString would set a basemap
+       that has no addTo and leave the map broken. */
+    if (key === 'b' && Object.prototype.hasOwnProperty.call(basemaps, value)) {
       map.removeLayer(basemaps[activeBasemap]);
       activeBasemap = value;
       basemaps[activeBasemap].addTo(map);
