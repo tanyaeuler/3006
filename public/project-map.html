@@ -2235,15 +2235,48 @@ const map = L.map('map', {
   maxBoundsViscosity: .6
 });
 
+/* Basemap tiles are the one thing this page still fetches from a third party,
+   so both layers use providers that serve tiles without an API key.
+
+   This previously used CARTO Positron. CARTO retired anonymous access to their
+   basemaps, and the tiles now come back stamped "API KEY REQUIRED", so the
+   light basemap is Esri's Light Gray Canvas instead — the same provider as the
+   satellite layer, and the closest no-key match to the old look.
+
+   To go back to CARTO, sign up for a key at carto.com and swap `light` for:
+
+     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?api_key=YOUR_KEY', {
+       attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+       subdomains: 'abcd', maxZoom: 19
+     })
+
+   Esri splits this style in two: the base has no place names, and the labels
+   ride on a second transparent layer above it. */
+const ESRI_CANVAS = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/';
+const ESRI_ATTRIBUTION = 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; ' +
+  '<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+
 const basemaps = {
-  light: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 19
-  }),
+  light: L.layerGroup([
+    L.tileLayer(ESRI_CANVAS + 'World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+      attribution: ESRI_ATTRIBUTION,
+      /* The style is only published to zoom 16; past that Leaflet scales the
+         level-16 tiles up rather than showing blank squares. */
+      maxNativeZoom: 16,
+      maxZoom: 19,
+      zIndex: 1
+    }),
+    L.tileLayer(ESRI_CANVAS + 'World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+      maxNativeZoom: 16,
+      maxZoom: 19,
+      zIndex: 2
+    })
+  ]),
   satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics',
-    maxZoom: 18
+    maxNativeZoom: 18,
+    maxZoom: 19,
+    zIndex: 1
   })
 };
 
@@ -2266,7 +2299,7 @@ const BasemapControl = L.Control.extend({
       if (!button || button.dataset.key === activeBasemap) return;
       map.removeLayer(basemaps[activeBasemap]);
       activeBasemap = button.dataset.key;
-      basemaps[activeBasemap].addTo(map).bringToBack();
+      basemaps[activeBasemap].addTo(map);
       box.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === button));
       writeHash();
     });
@@ -2586,7 +2619,7 @@ function readHash() {
     if (key === 'b' && basemaps[value]) {
       map.removeLayer(basemaps[activeBasemap]);
       activeBasemap = value;
-      basemaps[activeBasemap].addTo(map).bringToBack();
+      basemaps[activeBasemap].addTo(map);
       document.querySelectorAll('.basemap button').forEach(b => b.classList.toggle('on', b.dataset.key === value));
     }
     if (key === 'c' && value === '0') {

@@ -46,11 +46,37 @@ files and match the published SRI hashes
 `sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=`). To upgrade Leaflet,
 replace all four items from the matching release and update those hashes here.
 
-There is no build step and no other dependency. The one thing still fetched
-from elsewhere at runtime is **map tiles** — the light basemap comes from CARTO
-and the satellite imagery from Esri. A slippy map has to fetch imagery from a
-tile server; the only way to remove that dependency entirely would be to host
-your own tiles and point the two `L.tileLayer` URLs at them.
+There is no build step and no other dependency.
+
+## Map tiles
+
+Tiles are the one thing the page still fetches from a third party at runtime — a
+slippy map has to pull imagery from a tile server as you pan and zoom. Both
+layers use Esri services that need no API key:
+
+| Layer | Service |
+| --- | --- |
+| Map (light) | `Canvas/World_Light_Gray_Base` + `Canvas/World_Light_Gray_Reference` |
+| Satellite | `World_Imagery` |
+
+The light style is two layers because Esri publishes the grey base and its place
+labels separately; the labels ride on top via `zIndex`. It is only published to
+zoom 16, so `maxNativeZoom: 16` lets Leaflet scale those tiles up past that
+rather than showing blank squares.
+
+**This used to be CARTO Positron.** CARTO retired anonymous access to their
+basemaps, and their tiles started coming back stamped "API KEY REQUIRED" across
+the whole map. If you would rather have Positron's exact look back, sign up for
+a CARTO key and swap the `light` entry as shown in the comment above `basemaps`
+in the page. Other no-key options if Esri ever does the same thing:
+
+- `https://tile.openstreetmap.org/{z}/{x}/{y}.png` — standard OSM. Free and
+  keyless, but it is a full-colour style rather than a quiet grey one, and the
+  OSM Foundation's tile usage policy discourages heavy or commercial traffic.
+- Self-hosted tiles, which removes the third-party dependency entirely.
+
+Either way the change is confined to the `basemaps` object near the top of the
+page script.
 
 ## Headline figures
 
