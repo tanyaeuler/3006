@@ -2308,6 +2308,29 @@ const BasemapControl = L.Control.extend({
 });
 map.addControl(new BasemapControl());
 
+/* Cooperative gestures.
+
+   A trackpad two-finger swipe and a mouse wheel both arrive as a plain `wheel`
+   event, and Leaflet's scroll-wheel zoom swallows every one of them. On a page
+   that embeds this map, that traps the reader: scrolling down the page stops
+   dead over the map and starts zooming instead. So plain wheel events are kept
+   away from the zoom handler and left to scroll the page as normal.
+
+   Pinch still zooms. On a trackpad a pinch arrives as a wheel event with
+   ctrlKey set (as does ctrl/cmd + scroll), and those are passed straight
+   through to Leaflet, so zooming feels exactly as it did. On a touchscreen a
+   pinch is a touch gesture Leaflet handles separately, and double-tap,
+   double-click and the +/- buttons are all untouched.
+
+   The listener sits on the document in the capture phase so it runs before
+   Leaflet's own listener on the map container. stopPropagation only keeps the
+   event from reaching that zoom handler — it does not call preventDefault, so
+   the browser still performs its normal scroll. */
+document.addEventListener('wheel', event => {
+  if (event.ctrlKey) return;
+  if (map.getContainer().contains(event.target)) event.stopPropagation();
+}, { capture: true, passive: true });
+
 /* ------------------------------------------------------------------ *
  * Corridor overlay
  * ------------------------------------------------------------------ */

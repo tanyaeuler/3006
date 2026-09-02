@@ -27,6 +27,36 @@ production build, because Vite copies `public/` through untouched.
 - **Responsive layout** — on phones the projects panel collapses into a bottom
   sheet behind a "Projects" button.
 
+## Scrolling and zoom gestures
+
+The map does **not** zoom on a plain scroll. A trackpad two-finger swipe and a
+mouse wheel produce the same `wheel` event, and letting the map consume it traps
+the reader: scrolling down a page that embeds the map stops dead over it and
+starts zooming instead. Those events are now kept away from the zoom handler and
+scroll the page as normal.
+
+Zooming still works through:
+
+| Gesture | Works |
+| --- | --- |
+| Pinch on a trackpad | yes — arrives as a wheel event with `ctrlKey` set |
+| Ctrl / ⌘ + scroll | yes — same event |
+| Pinch on a touchscreen | yes — a touch gesture Leaflet handles separately |
+| Double-click / double-tap | yes |
+| The `+` / `−` buttons | yes |
+| Plain scroll or mouse wheel | no, by design |
+
+The trade-off is that plain **mouse-wheel** zoom goes too. A mouse wheel and a
+trackpad two-finger swipe are indistinguishable to the browser, so one cannot be
+kept without the other. The zoom buttons cover that case.
+
+To go back to scroll-wheel zooming, delete the `document.addEventListener
+('wheel', …)` block below `map.addControl(new BasemapControl())`.
+
+Note that one-finger dragging on a touchscreen still pans the map rather than
+scrolling the page — the same class of trap, on phones. Fixing that means
+requiring two fingers to pan, which is a separate change.
+
 ## Files the page needs
 
 Leaflet 1.9.4 is served from alongside the page rather than a CDN, so these
