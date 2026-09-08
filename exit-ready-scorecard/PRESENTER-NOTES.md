@@ -81,9 +81,19 @@ whole edit loop. You can do it in front of them.
   deliberate and it is not negotiable without advice.
 - **The CTA says "nothing proceeds unless you ask it to", not "free".** If the twenty minutes
   is genuinely no cost, tell me and I will put it in.
-- **The logo is a text placeholder** and the typeface is a system stack, because the brand
-  files were not available. Colours are their navy, gold and light grey. Send me the logo
-  file and the typeface and it takes ten minutes.
+- **The logo is drawn, not the original file.** Nothing may be fetched over a network and the
+  file has to stay self contained, so the mark is hand built as inline SVG from the artwork
+  you sent: two overlapping rooflines in silver with a dark keyline, the bar at the right,
+  then "mi casa" in gold and "Business Advisory" beneath. It is a close likeness, not a trace.
+  If a director looks hard they will see it is redrawn. Swapping in the real file is a
+  one-line change and the file tells you where: replace the `<svg class="logo">` block with
+  an `<img class="logo" src="data:image/png;base64,...">`. Send me the file and I will do it.
+- **The wordmark uses your stated gold, #9d7a3f.** The gold in the artwork you sent reads a
+  little lighter than that. Rather than put two golds on one page I used yours throughout.
+  If the logo should keep the lighter tone, change `--logo-gold` to `#C9A063` and nothing
+  else moves.
+- **Typefaces are system stacks**, left as you asked. The two lines of logo type are pinned
+  to a fixed width, so the lockup holds its shape whatever fonts a machine has.
 
 ## What has been checked
 
@@ -96,3 +106,5 @@ whole edit loop. You can do it in front of them.
 - No network requests, no external files, no fonts fetched, no storage of any kind.
 - Renders correctly from 305px wide up to a projector, and at 200 per cent zoom.
 - No em-dashes, no emoji, Australian English throughout.
+- The masthead is white rather than navy, because the logo carries a black keyline and a
+  black second line that need a light background. Nothing about the logo was recoloured.

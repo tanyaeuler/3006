@@ -39,6 +39,12 @@
   --paper-invert:   #FFFFFF;
   --focus:          var(--gold);   /* 4.0:1 on white, 3.3:1 on grey, both AA
                                       for a focus indicator                   */
+  --logo-gold:      var(--gold);   /* the gold inside the logo itself. The
+                                      supplied artwork reads a little lighter
+                                      than the stated brand gold, so this is
+                                      split out: change this one value to
+                                      #C9A063 if the logo should keep the
+                                      lighter tone from the artwork.          */
 
   /* TYPEFACE: still a placeholder. No brand typeface has been supplied, and
      nothing may be fetched over a network, so these are system stacks.
@@ -69,21 +75,36 @@ p:last-child{ margin-bottom:0; }
 
 /* ---------- Shell ---------- */
 .masthead{
-  background:var(--primary-dark);
-  color:var(--paper-invert);
+  background:var(--paper);
+  color:var(--primary);
   padding:.9rem 1.25rem;
+  border-bottom:4px solid var(--primary);
 }
 .masthead-inner{
   max-width:var(--maxw); margin:0 auto;
   display:flex; align-items:center; justify-content:space-between; gap:1rem;
   flex-wrap:wrap;
 }
-/* LOGO PLACEHOLDER: text wordmark until the real logo file is supplied.
-   Swap this block for an inline SVG of the Mi Casa logo. */
-.wordmark{ display:flex; flex-direction:column; line-height:1.15; }
-.wordmark b{ font-family:var(--font-head); font-size:1.25rem; letter-spacing:.02em; font-weight:600; }
-.wordmark span{ font-size:.8125rem; letter-spacing:.14em; text-transform:uppercase; opacity:.85; }
-.masthead-tool{ font-size:.9375rem; letter-spacing:.04em; text-transform:uppercase; opacity:.9; }
+/* LOGO
+   The mark is drawn inline because nothing may be fetched over a network and
+   the file must stay self contained. The rooflines are hand built paths and
+   the two lines of type are SVG text pinned to a fixed width with textLength,
+   so the lockup keeps its proportions on any machine whatever fonts exist.
+   TO USE THE REAL ARTWORK INSTEAD: replace the whole <svg class="logo"> block
+   in the masthead with
+     <img class="logo" alt="Mi Casa Business Advisory" src="data:image/png;base64,PASTE">
+   and nothing else needs to change. */
+.logo{ width:150px; height:auto; display:block; }
+.logo-word{ font-family:var(--font-body); font-size:64px; font-weight:700; fill:var(--logo-gold); }
+.logo-sub{ font-family:var(--font-body); font-size:30px; font-weight:400; fill:#111111; }
+.masthead-tool{
+  font-size:.9375rem; letter-spacing:.08em; text-transform:uppercase;
+  font-weight:600; color:var(--primary);
+}
+@media (max-width:34rem){
+  .logo{ width:112px; }
+  .masthead-tool{ font-size:.8125rem; }
+}
 
 .draftflag{
   background:var(--accent-text); color:#fff;
@@ -360,8 +381,24 @@ body.demo-on{ padding-bottom:7rem; }
 
 <header class="masthead">
   <div class="masthead-inner">
-    <!-- LOGO PLACEHOLDER: replace this .wordmark block with the inline SVG logo -->
-    <div class="wordmark"><b>Mi Casa</b><span>Business Advisory</span></div>
+    <svg class="logo" viewBox="0 0 300 212" role="img" aria-label="Mi Casa Business Advisory">
+      <defs>
+        <linearGradient id="mcMetal" x1="0" y1="0" x2=".55" y2="1">
+          <stop offset="0" stop-color="#F1EAE6"/>
+          <stop offset=".4" stop-color="#D6CAC4"/>
+          <stop offset="1" stop-color="#968B85"/>
+        </linearGradient>
+      </defs>
+      <g fill="url(#mcMetal)" stroke="#141414" stroke-width="2.4" stroke-linejoin="miter">
+        <path d="M142 48 L186 34 L250 96 L228 96 L186 54 L152 62 Z"/>
+        <path d="M258 56 L276 48 L276 86 L258 86 Z"/>
+        <path d="M6 96 L110 22 L214 96 L190 96 L110 42 L30 96 Z"/>
+      </g>
+      <text class="logo-word" x="150" y="158" text-anchor="middle"
+            textLength="224" lengthAdjust="spacingAndGlyphs">mi casa</text>
+      <text class="logo-sub" x="150" y="202" text-anchor="middle"
+            textLength="226" lengthAdjust="spacingAndGlyphs">Business Advisory</text>
+    </svg>
     <div class="masthead-tool">Exit Ready Scorecard</div>
   </div>
 </header>
