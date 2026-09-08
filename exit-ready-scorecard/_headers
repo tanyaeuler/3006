@@ -1,0 +1,11 @@
+# Exit Ready Scorecard prototype: keep this folder out of search results.
+# Netlify and Cloudflare Pages only. On Apache use .htaccess, on IIS web.config.
+#
+# This file must sit at the ROOT of the deployed site, not in the subfolder,
+# and the path below must match the folder the prototype actually lives in.
+# If the prototype is the whole site, change the path to /*
+
+/exit-ready-scorecard/*
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate
+  Referrer-Policy: no-referrer
+  Cache-Control: private, no-store, max-age=0

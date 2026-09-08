@@ -1,0 +1,37 @@
+# ---------------------------------------------------------------------------
+# Exit Ready Scorecard prototype: keep this folder out of search results.
+# Apache (cPanel, Plesk, most shared hosting in Australia). For IIS use
+# web.config instead. For Netlify or Cloudflare Pages use _headers.
+#
+# Deliberately NOT paired with a robots.txt Disallow rule. See DEPLOY-NOTES.md.
+# ---------------------------------------------------------------------------
+
+<IfModule mod_headers.c>
+  # The real instruction to search engines. Sent on every file in this folder,
+  # not just the HTML, and it survives being linked to from elsewhere.
+  Header set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate"
+
+  # Do not leak this URL to any site a visitor clicks through to.
+  Header set Referrer-Policy "no-referrer"
+
+  # Keep it out of proxy and CDN caches.
+  Header set Cache-Control "private, no-store, max-age=0"
+  Header set Pragma "no-cache"
+</IfModule>
+
+# No directory listing if index.html is ever renamed or missing.
+# NOTE: a few locked down shared hosts refuse the Options directive and answer
+# with a 500 Internal Server Error. If the folder throws a 500 after you upload
+# this file, delete the line below and everything else keeps working.
+Options -Indexes
+
+# ---------------------------------------------------------------------------
+# OPTIONAL, AND THE ONLY REAL LOCK.
+# noindex keeps it out of Google. It does not stop anyone who has the URL.
+# To require a password, create the .htpasswd file (see DEPLOY-NOTES.md),
+# put it ABOVE the web root, then uncomment these four lines and set the path.
+# ---------------------------------------------------------------------------
+# AuthType Basic
+# AuthName "Mi Casa Business Advisory"
+# AuthUserFile /home/YOURACCOUNT/.htpasswd
+# Require valid-user
