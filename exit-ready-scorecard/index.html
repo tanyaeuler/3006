@@ -1,0 +1,1172 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Exit Ready Scorecard | Mi Casa Business Advisory</title>
+<style>
+/* ==========================================================================
+   BRAND TOKENS
+   --------------------------------------------------------------------------
+   PLACEHOLDER VALUES. These are NOT Mi Casa colours. Replace the eight values
+   in this block with the real brand hex codes and the whole tool re-skins.
+   Nothing else in the stylesheet hard codes a colour.
+   Contrast note: keep --ink and --muted dark enough against --paper, and
+   --paper-invert light enough against --primary, to hold WCAG 2.1 AA (4.5:1).
+   ========================================================================== */
+:root{
+  /* Supplied by the client. */
+  --navy:           #1b2a4a;   /* brand navy                                  */
+  --gold:           #9d7a3f;   /* brand gold                                  */
+  --lightgrey:      #EAE9E9;   /* brand light grey                            */
+
+  /* Roles. Change these if a role should use a different brand colour. */
+  --primary:        var(--navy);
+  --primary-dark:   #121D35;   /* navy darkened for hover and the masthead    */
+  --accent:         var(--gold);
+  --accent-text:    #7A5E2E;   /* gold darkened. Brand gold on white is 3.99:1,
+                                  which is below the 4.5:1 AA floor for normal
+                                  text, so text and small graphics use this
+                                  darker gold (5.7:1). Large fills and rules
+                                  still use --accent.                         */
+  --ink:            var(--navy);   /* 14.4:1 on white, 12.0:1 on light grey   */
+  --muted:          #48566E;       /* 7.5:1 on white, 6.2:1 on light grey     */
+  --paper:          #FFFFFF;
+  --paper-alt:      var(--lightgrey);
+  --tint:           #E5E8EF;       /* pale navy, selected rows and confirms   */
+  --line:           #D2D1D1;
+  --paper-invert:   #FFFFFF;
+  --focus:          var(--gold);   /* 4.0:1 on white, 3.3:1 on grey, both AA
+                                      for a focus indicator                   */
+
+  /* TYPEFACE: still a placeholder. No brand typeface has been supplied, and
+     nothing may be fetched over a network, so these are system stacks.
+     Replace the family names once the brand faces are confirmed, and only
+     with faces that are installed locally or embedded as a data URI. */
+  --font-head: Georgia, "Times New Roman", "Iowan Old Style", serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               "Helvetica Neue", Arial, sans-serif;
+
+  --radius: 3px;
+  --maxw: 44rem;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0;
+  background:var(--paper-alt);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:1.125rem;          /* 18px minimum body text */
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{ font-family:var(--font-head); font-weight:600; line-height:1.25; margin:0; }
+p{ margin:0 0 1em; }
+p:last-child{ margin-bottom:0; }
+
+/* ---------- Shell ---------- */
+.masthead{
+  background:var(--primary-dark);
+  color:var(--paper-invert);
+  padding:.9rem 1.25rem;
+}
+.masthead-inner{
+  max-width:var(--maxw); margin:0 auto;
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  flex-wrap:wrap;
+}
+/* LOGO PLACEHOLDER: text wordmark until the real logo file is supplied.
+   Swap this block for an inline SVG of the Mi Casa logo. */
+.wordmark{ display:flex; flex-direction:column; line-height:1.15; }
+.wordmark b{ font-family:var(--font-head); font-size:1.25rem; letter-spacing:.02em; font-weight:600; }
+.wordmark span{ font-size:.8125rem; letter-spacing:.14em; text-transform:uppercase; opacity:.85; }
+.masthead-tool{ font-size:.9375rem; letter-spacing:.04em; text-transform:uppercase; opacity:.9; }
+
+.draftflag{
+  background:var(--accent-text); color:#fff;
+  text-align:center; font-size:.8125rem; letter-spacing:.12em;
+  text-transform:uppercase; padding:.35rem 1rem;
+}
+
+.wrap{ max-width:var(--maxw); margin:0 auto; padding:1.5rem 1.25rem 4rem; }
+.card{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:1.75rem 1.5rem;
+}
+
+/* ---------- Progress ---------- */
+.progress{ margin:0 0 1.5rem; }
+.progress-label{
+  display:flex; justify-content:space-between; align-items:baseline;
+  font-size:.9375rem; color:var(--muted); margin-bottom:.5rem;
+}
+.progress-track{ height:6px; background:var(--line); border-radius:3px; overflow:hidden; }
+.progress-fill{ height:100%; background:var(--primary); width:0; transition:width .35s ease; }
+
+/* ---------- Questions ---------- */
+.screen-title{ font-size:1.375rem; margin-bottom:.35rem; }
+.screen-sub{ color:var(--muted); font-size:1rem; margin-bottom:1.75rem; }
+
+.q{ margin:0 0 2.25rem; border:0; padding:0; }
+.q:last-of-type{ margin-bottom:1rem; }
+.q legend{
+  font-size:1.25rem;          /* 20px question text */
+  line-height:1.4; font-weight:600;
+  padding:0; margin-bottom:.9rem; color:var(--ink);
+}
+.opt{ display:block; margin:0 0 .625rem; }
+.opt input{ position:absolute; opacity:0; width:1px; height:1px; }
+.opt span{
+  display:flex; align-items:center; gap:.875rem;
+  min-height:56px;                       /* well above the 48px target floor */
+  padding:.75rem 1rem;
+  border:1px solid var(--line); border-radius:var(--radius);
+  background:var(--paper); cursor:pointer;
+  font-size:1.0625rem; line-height:1.45;
+  transition:border-color .12s ease, background .12s ease;
+}
+.opt span::before{
+  content:""; flex:0 0 auto;
+  width:22px; height:22px; border-radius:50%;
+  border:2px solid var(--muted); background:#fff;
+  box-shadow:inset 0 0 0 22px #fff;
+  transition:box-shadow .12s ease, border-color .12s ease;
+}
+.opt span:hover{ border-color:var(--primary); background:var(--paper-alt); }
+.opt input:checked + span{ border-color:var(--primary); background:var(--tint); font-weight:600; }
+.opt input:checked + span::before{
+  border-color:var(--primary); box-shadow:inset 0 0 0 4px #fff, inset 0 0 0 22px var(--primary);
+}
+.opt input:focus-visible + span{ outline:3px solid var(--focus); outline-offset:2px; }
+
+.err{
+  display:none; margin:.5rem 0 0; padding:.5rem .75rem;
+  background:#FBEAEA; border-left:4px solid #A22C2C;
+  color:#7A1F1F; font-size:1rem; font-weight:600;
+}
+.err.on{ display:block; }
+
+/* ---------- Fields ---------- */
+.field{ margin:0 0 1.5rem; }
+.field > label, .field > .flabel{
+  display:block; font-size:1.0625rem; font-weight:600; margin-bottom:.5rem;
+}
+.optional{ font-weight:400; color:var(--muted); }
+input[type=text],input[type=email],input[type=tel]{
+  width:100%; min-height:52px; padding:.6rem .85rem;
+  font:inherit; font-size:1.0625rem; color:var(--ink);
+  background:var(--paper);
+  border:1px solid var(--line); border-radius:var(--radius);
+}
+input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{
+  outline:3px solid var(--focus); outline-offset:2px;
+}
+/* Screen headings receive focus on navigation so the new screen is announced.
+   That is not a keyboard interaction, so it must not paint a focus ring. */
+[tabindex="-1"]:focus{ outline:none; }
+.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:0 1rem; }
+@media (max-width:36rem){ .grid2{ grid-template-columns:1fr; } }
+.subhead{
+  font-family:var(--font-head); font-size:1.125rem; font-weight:600;
+  margin:2rem 0 1rem; padding-top:1.25rem; border-top:1px solid var(--line);
+}
+.assurance{
+  background:var(--paper-alt); border-left:4px solid var(--accent);
+  padding:.9rem 1rem; font-size:1rem; margin:0 0 1.5rem;
+}
+
+/* ---------- Buttons ---------- */
+.nav{ display:flex; gap:.75rem; margin-top:2rem; }
+.btn{
+  font:inherit; font-size:1.0625rem; font-weight:600;
+  min-height:52px; padding:.75rem 1.5rem;
+  border-radius:var(--radius); border:1px solid transparent;
+  cursor:pointer; text-align:center;
+}
+.btn-primary{ background:var(--primary); color:var(--paper-invert); flex:1 1 auto; }
+.btn-primary:hover{ background:var(--primary-dark); }
+.btn-ghost{ background:transparent; color:var(--primary); border-color:var(--line); flex:0 0 auto; }
+.btn-ghost:hover{ background:var(--paper-alt); }
+.btn[disabled]{ opacity:.45; cursor:not-allowed; }
+.visually-hidden{
+  position:absolute; width:1px; height:1px; margin:-1px; padding:0;
+  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
+}
+.textlink{
+  background:none; border:0; padding:.5rem; font:inherit; font-size:1rem;
+  color:var(--primary); text-decoration:underline; cursor:pointer;
+}
+
+/* ---------- Result screen ---------- */
+.result-card{ padding:0; overflow:hidden; }
+.dialwrap{ padding:2.25rem 1.5rem 1.75rem; text-align:center; background:var(--paper); }
+.dial{ width:100%; max-width:320px; height:auto; display:block; margin:0 auto; }
+.dial-track{ fill:none; stroke:var(--line); stroke-width:16; stroke-linecap:round; }
+.dial-fill{
+  fill:none; stroke:var(--primary); stroke-width:16; stroke-linecap:round;
+  stroke-dasharray:377; stroke-dashoffset:377;
+  transition:stroke-dashoffset 1s cubic-bezier(.22,.9,.3,1);
+}
+.dial-value{
+  font-family:var(--font-head); font-size:64px; font-weight:600;
+  fill:var(--ink); font-variant-numeric:tabular-nums;
+}
+.dial-scale{ font-family:var(--font-body); font-size:15px; fill:var(--muted); }
+.band-name{
+  font-family:var(--font-head); font-size:1.875rem; margin-top:1.5rem; color:var(--primary-dark);
+}
+.band-summary{
+  background:var(--tint); border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  padding:1.5rem; font-size:1.0625rem;
+}
+
+.section{ padding:1.75rem 1.5rem; border-bottom:1px solid var(--line); }
+.section h2{
+  font-size:.9375rem; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--muted); font-family:var(--font-body); font-weight:700;
+  margin-bottom:1.25rem;
+}
+
+.dim{ margin:0 0 1.125rem; }
+.dim-top{ display:flex; justify-content:space-between; align-items:baseline; gap:1rem; margin-bottom:.35rem; }
+.dim-name{ font-size:1.0625rem; }
+.dim-score{ font-size:1rem; font-variant-numeric:tabular-nums; color:var(--muted); white-space:nowrap; }
+.dim-track{ height:12px; background:var(--line); border-radius:2px; overflow:hidden; }
+.dim-fill{ height:100%; width:0; background:var(--primary); transition:width .7s cubic-bezier(.22,.9,.3,1); }
+.dim.focus-area .dim-name{ font-weight:700; }
+.dim.focus-area .dim-fill{ background:var(--accent-text); }
+.tag-focus{
+  display:inline-block; margin-left:.5rem; padding:.1rem .45rem;
+  font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; font-weight:700;
+  border:1px solid var(--accent-text); color:var(--accent-text); border-radius:2px; vertical-align:.1em;
+}
+
+.weak{ margin:0 0 1.75rem; }
+.weak:last-child{ margin-bottom:0; }
+.weak-head{ display:flex; justify-content:space-between; align-items:baseline; gap:1rem; margin-bottom:.6rem; }
+.weak-title{ font-family:var(--font-head); font-size:1.1875rem; }
+.weak-num{ color:var(--accent-text); font-weight:700; }
+.weak-score{ font-size:1rem; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap; }
+.weak p{ font-size:1.0625rem; }
+
+.confirm{
+  margin:1.75rem 1.5rem; padding:1.25rem;
+  background:var(--tint); border:1px solid var(--primary); border-radius:var(--radius);
+}
+.confirm-head{ display:flex; gap:.75rem; align-items:flex-start; }
+.confirm-head svg{ flex:0 0 auto; margin-top:.15rem; }
+.confirm-head strong{ font-size:1.0625rem; }
+.confirm-email{ font-weight:600; word-break:break-all; }
+.proto{
+  margin-top:1rem; padding-top:.875rem; border-top:1px dashed var(--primary);
+  font-size:.9375rem; color:var(--primary-dark);
+}
+.proto b{ letter-spacing:.06em; text-transform:uppercase; font-size:.8125rem; }
+
+.cta{ margin:0 1.5rem 1.75rem; padding:1.5rem; background:var(--primary-dark); color:var(--paper-invert); border-radius:var(--radius); }
+.cta h2{ font-family:var(--font-head); font-size:1.375rem; margin-bottom:.6rem; color:var(--paper-invert); }
+.cta p{ font-size:1.0625rem; opacity:.94; }
+.cta .btn{ width:100%; background:var(--paper-invert); color:var(--primary-dark); margin-top:.5rem; }
+.cta .btn:hover{ background:var(--tint); }
+
+.disclaimer{ padding:0 1.5rem 1.5rem; font-size:1rem; color:var(--muted); }
+.restart{ padding:0 1.5rem 1.75rem; }
+
+/* ---------- Presenter mode ---------- */
+.demo-toggle{
+  position:fixed; right:.5rem; bottom:.5rem; z-index:40;
+  width:44px; height:44px; border-radius:50%;
+  border:1px solid var(--line); background:var(--paper); color:var(--muted);
+  font:inherit; font-size:.75rem; letter-spacing:.05em; font-weight:700;
+  opacity:.35; cursor:pointer;
+}
+.demo-toggle:hover,.demo-toggle:focus-visible{ opacity:1; }
+.demobar{
+  position:fixed; left:0; right:0; bottom:0; z-index:50;
+  background:#15202B; color:#F2F5F7; border-top:2px solid var(--accent);
+  padding:.65rem .75rem; display:none;
+}
+.demobar.on{ display:block; }
+.demobar-inner{
+  max-width:64rem; margin:0 auto;
+  display:flex; flex-wrap:wrap; gap:.4rem; align-items:center;
+}
+.demobar-label{
+  font-size:.6875rem; letter-spacing:.14em; text-transform:uppercase;
+  color:#9FB0BE; width:100%; margin-bottom:.15rem;
+}
+.dbtn{
+  font:inherit; font-size:.875rem; font-weight:600;
+  min-height:40px; padding:.4rem .7rem; cursor:pointer;
+  background:#24333F; color:#F2F5F7; border:1px solid #3A4C5A; border-radius:2px;
+}
+.dbtn:hover{ background:#31424F; }
+.dbtn-key{ background:var(--accent-text); border-color:var(--accent-text); color:#fff; }
+.demobar select{
+  font:inherit; font-size:.875rem; min-height:40px; padding:.35rem .5rem;
+  background:#24333F; color:#F2F5F7; border:1px solid #3A4C5A; border-radius:2px;
+}
+.demobar .spacer{ flex:1 1 auto; }
+body.demo-on{ padding-bottom:7rem; }
+
+/* ---------- Adviser email panel ---------- */
+.sheet{
+  position:fixed; inset:0; z-index:60; display:none;
+  background:rgba(21,32,43,.72); padding:1rem; overflow-y:auto;
+}
+.sheet.on{ display:block; }
+.sheet-inner{ max-width:46rem; margin:0 auto 3rem; background:#fff; border-radius:var(--radius); }
+.sheet-bar{
+  display:flex; justify-content:space-between; align-items:center; gap:1rem;
+  padding:.65rem .9rem; background:#15202B; color:#F2F5F7;
+  font-size:.8125rem; letter-spacing:.1em; text-transform:uppercase;
+  border-radius:var(--radius) var(--radius) 0 0;
+}
+.mailhead{ padding:1rem 1.25rem; border-bottom:1px solid var(--line); font-size:.9375rem; }
+.mailhead div{ display:flex; gap:.5rem; padding:.15rem 0; }
+.mailhead b{ flex:0 0 5.5rem; color:var(--muted); font-weight:600; }
+.mailbody{ padding:1.25rem; font-size:.9375rem; line-height:1.55; }
+.mailbody h3{
+  font-family:var(--font-body); font-size:.8125rem; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted); font-weight:700;
+  margin:1.5rem 0 .5rem; padding-bottom:.3rem; border-bottom:1px solid var(--line);
+}
+.mailbody h3:first-child{ margin-top:0; }
+.kv{ display:flex; gap:.75rem; padding:.28rem 0; border-bottom:1px dotted var(--line); }
+.kv dt{ flex:0 0 11rem; color:var(--muted); }
+.kv dd{ margin:0; flex:1 1 auto; font-weight:600; }
+@media (max-width:32rem){ .kv{ flex-direction:column; gap:0; } .kv dt{ flex:none; } }
+.qa{ margin:0 0 .7rem; padding-bottom:.7rem; border-bottom:1px dotted var(--line); }
+.qa .qtext{ color:var(--muted); }
+.qa .atext{ font-weight:600; }
+.qa .pts{ color:var(--accent-text); font-weight:700; font-variant-numeric:tabular-nums; }
+.tierbox{ padding:.85rem 1rem; border-radius:var(--radius); background:var(--paper-alt); border-left:5px solid var(--accent); }
+.tierbox .tname{ font-family:var(--font-head); font-size:1.25rem; }
+.tierbox .taction{ font-weight:700; }
+.sheet-note{ padding:0 1.25rem 1.25rem; font-size:.875rem; color:var(--muted); }
+
+@media print{ .demobar,.demo-toggle,.nav{ display:none !important; } }
+@media (prefers-reduced-motion:reduce){
+  .dial-fill,.dim-fill,.progress-fill{ transition:none !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <!-- LOGO PLACEHOLDER: replace this .wordmark block with the inline SVG logo -->
+    <div class="wordmark"><b>Mi Casa</b><span>Business Advisory</span></div>
+    <div class="masthead-tool">Exit Ready Scorecard</div>
+  </div>
+</header>
+<div class="draftflag" id="draftflag">Draft copy, for review</div>
+
+<main class="wrap" id="main">
+
+  <!-- Progress -->
+  <div class="progress" id="progress">
+    <div class="progress-label">
+      <span id="progress-step">Step 1 of 6</span>
+      <span id="progress-name">Owner dependence</span>
+    </div>
+    <div class="progress-track" role="progressbar" aria-labelledby="progress-step"
+         aria-valuemin="0" aria-valuemax="6" aria-valuenow="1">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+
+  <!-- Question and detail screens are rendered here -->
+  <div id="screens"></div>
+
+  <!-- Result screen is rendered here -->
+  <div id="result" hidden></div>
+
+</main>
+
+<!-- Presenter mode -->
+<button class="demo-toggle" id="demo-toggle" aria-expanded="false"
+        aria-controls="demobar" title="Presenter controls">DEMO</button>
+
+<div class="demobar" id="demobar">
+  <div class="demobar-inner">
+    <span class="demobar-label">Presenter controls, not visible to the client</span>
+    <button class="dbtn" data-fill="ready">Market Ready</button>
+    <button class="dbtn" data-fill="nearly">Nearly Ready</button>
+    <button class="dbtn" data-fill="notyet">Not Yet Ready</button>
+    <button class="dbtn" data-fill="significant">Significant Work</button>
+    <span class="spacer"></span>
+    <label class="visually-hidden" for="jump">Jump to screen</label>
+    <select id="jump">
+      <option value="">Jump to screen...</option>
+      <option value="1">1. Owner dependence</option>
+      <option value="2">2. Financial readiness</option>
+      <option value="3">3. Structural and legal</option>
+      <option value="4">4. Transferability and risk</option>
+      <option value="5">5. Planning and evidence</option>
+      <option value="6">6. Your details</option>
+      <option value="7">7. Result</option>
+    </select>
+    <button class="dbtn dbtn-key" id="show-adviser">Show what the adviser receives</button>
+    <button class="dbtn" id="demo-reset">Reset</button>
+    <button class="dbtn" id="demo-hide" title="Hide these controls">Hide</button>
+  </div>
+</div>
+
+<!-- Adviser email panel -->
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+  <div class="sheet-inner">
+    <div class="sheet-bar">
+      <span id="sheet-title">What lands in the adviser inbox</span>
+      <button class="dbtn" id="sheet-close">Close</button>
+    </div>
+    <div id="sheet-content"></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ==========================================================================
+   CONFIG
+   --------------------------------------------------------------------------
+   EVERYTHING EDITABLE LIVES IN THIS ONE OBJECT.
+   Questions, option labels, point values, band thresholds, band copy, the
+   buyer-view paragraphs, routing tiers and the demo personas.
+   To change a threshold mid meeting, edit CONFIG.bands[n].min and reload.
+   To reword a question, edit CONFIG.questions[n].text and reload.
+   Nothing below the "END OF CONFIG" marker needs to be touched.
+   Option order is always highest to lowest: 10, 7, 3, 0 points.
+   ========================================================================== */
+const CONFIG = {
+
+  meta: {
+    toolName: 'Exit Ready Scorecard',
+    firmName: 'Mi Casa Business Advisory',
+    adviserInbox: 'enquiries@micasabusinessadvisory.com.au', /* demo only */
+    draftFlag: 'Draft copy, for review'
+  },
+
+  /* ---- The five dimensions.
+     ARRAY ORDER IS ALSO THE TIE-BREAK ORDER for the two weakest. ---- */
+  dimensions: [
+    { id:'owner', name:'Owner dependence',
+      buyerView:'A buyer is not only acquiring the business, they are acquiring what happens after you leave. Where the relationships, the decisions and the operating knowledge sit with you personally, the buyer has to work out what remains when you are no longer there. In practice this shows up as longer handover periods, conditions attached to the sale, and a great many questions you will need documented answers to.' },
+
+    { id:'financial', name:'Financial readiness',
+      buyerView:'Financial records are the first thing a buyer’s adviser examines, and the first thing that stalls a process. Where the records are behind, or personal and business spending run together, the performance of the business cannot be confirmed from the accounts alone. That means a longer period of questions, adjustments and verification before anyone can move on to anything else.' },
+
+    { id:'structural', name:'Structural and legal readiness',
+      buyerView:'Leases, employment agreements, supplier and customer contracts, and ownership of intellectual property and domains are all expected to transfer with the business. Where they are undocumented, expired, or held in the wrong name, each one becomes an item to resolve before anything can settle. This is usually the least interesting work on the list and the most common reason a process runs long.' },
+
+    { id:'transfer', name:'Transferability and risk',
+      buyerView:'A buyer assesses how much of the business survives the change of hands. Concentration in a single customer, or capability that lives in one person’s head, both raise the same question: how much of the current performance depends on something that is not actually being transferred. Buyers tend to respond to that with conditions rather than by walking away, and those conditions sit with you.' },
+
+    { id:'planning', name:'Planning and evidence',
+      buyerView:'The absence of a documented plan or a recent appraisal is not a problem inside the business, it is a problem in the process. It means the significant decisions get made under time pressure, on somebody else’s timetable, with nothing prepared in advance to test an approach against. Owners in this position often find that the first serious enquiry is also the moment they have to decide everything at once.' }
+  ],
+
+  /* ---- Points awarded for option 1, 2, 3, 4. Edit to reweight everything. ---- */
+  optionPoints: [10, 7, 3, 0],
+
+  /* ---- Screen headings for the five scored screens. ---- */
+  screens: [
+    { n:1, dimension:'owner',      title:'Owner dependence',
+      sub:'How much of the business runs through you personally.' },
+    { n:2, dimension:'financial',  title:'Financial readiness',
+      sub:'Whether the numbers would stand up to examination.' },
+    { n:3, dimension:'structural', title:'Structural and legal readiness',
+      sub:'What is documented, current and able to transfer.' },
+    { n:4, dimension:'transfer',   title:'Transferability and risk',
+      sub:'How much of the business survives a change of hands.' },
+    { n:5, dimension:'planning',   title:'Planning and evidence',
+      sub:'What has actually been written down and tested.' }
+  ],
+
+  /* ---- The ten scored questions, two per screen. ---- */
+  questions: [
+    { id:'q1', dimension:'owner', screen:1,
+      text:'If you took eight weeks off with no contact at all, what would happen to the business?',
+      options:['It would run normally','It would run, with some problems','It would struggle significantly','It would effectively stop'] },
+    { id:'q2', dimension:'owner', screen:1,
+      text:'How many of your top ten customer relationships are held by you personally rather than by the business or a staff member?',
+      options:['None, or one or two','About half','Most of them','All of them'] },
+
+    { id:'q3', dimension:'financial', screen:2,
+      text:'How current and complete are your financial records?',
+      options:['Up to date, three or more years, accountant prepared','Up to date, one to two years','Behind, but recoverable','Not in a state I would want a buyer to see'] },
+    { id:'q4', dimension:'financial', screen:2,
+      text:'Could personal and business expenses be clearly separated in your accounts?',
+      options:['They are already separate','Mostly, with some adjustments needed','Significant personal expenses run through the business','I am not sure'] },
+
+    { id:'q5', dimension:'structural', screen:3,
+      text:'Which of these are documented and current: premises lease, employment agreements, key supplier and customer contracts, ownership of IP, trade marks and domains?',
+      options:['All of them','Most of them','Some of them','Few or none'] },
+    { id:'q6', dimension:'structural', screen:3,
+      text:'Is your business structure and ownership clearly documented, including any partners or shareholders?',
+      options:['Clear and agreed in writing','Documented, but not reviewed recently','An informal understanding','No'] },
+
+    { id:'q7', dimension:'transfer', screen:4,
+      text:'What share of your revenue comes from your single largest customer?',
+      options:['Under 10 per cent','10 to 25 per cent','25 to 50 per cent','More than half'] },
+    { id:'q8', dimension:'transfer', screen:4,
+      text:'Could the business keep running under a new owner?',
+      options:['Capable team and documented processes','A team, but the processes are in my head','Staff, but no systems','No staff'] },
+
+    { id:'q9', dimension:'planning', screen:5,
+      text:'Do you have a documented succession or exit plan?',
+      options:['Written and current','Written, but out of date','Discussed, but never written down','No'] },
+    { id:'q10', dimension:'planning', screen:5,
+      text:'Have you had a formal valuation or appraisal in the last three years?',
+      options:['A formal valuation','An informal appraisal or broker opinion','A rough idea only','No idea what it is worth'] }
+  ],
+
+  /* ---- BANDS. Evaluated top down, first match on score >= min wins.
+     Keep this array in descending order of min. ---- */
+  bands: [
+    { id:'ready', min:80, name:'Market Ready',
+      summary:'Your business shows most of the characteristics a buyer or a successor looks for: it can operate without you at the centre of it, the records will stand up to examination, and the important arrangements are written down. The work in front of you is confirming detail rather than building foundations. The useful next step is testing which items are genuinely evidenced and which only look that way on paper.' },
+
+    { id:'nearly', min:55, name:'Nearly Ready',
+      summary:'The core of the business is sound, and what is missing reads as specific gaps rather than structural problems. Most of it is documentation, separation and evidence, which is work that can be scheduled rather than rebuilt. Dealing with it before any approach arrives keeps the timetable yours instead of somebody else’s.' },
+
+    { id:'notyet', min:30, name:'Not Yet Ready',
+      summary:'There is a real business here, and there is also a defined body of work between where it sits today and where a buyer or a successor would need it to be. The common pattern at this score is that too much runs through the owner and too little is written down. None of that is unusual and none of it is quick, so the earlier it starts, the more options stay open to you.' },
+
+    { id:'significant', min:0, name:'Significant Work Required',
+      summary:'On these answers, the business is not currently in a state where a sale or a handover could proceed without a good deal of preparatory work first. That is a statement about documentation, structure and dependence, not about the quality of what you have built. The list is long enough that it needs a sequence and a realistic timeframe, and that is the useful place to begin.' }
+  ],
+
+  /* ---- ROUTING TIERS. Evaluated in order, first match wins.
+     Shown in the adviser panel only. Never shown to the prospect. ---- */
+  tiers: [
+    { id:'Tier V', action:'Route to valuation enquiry',
+      test:p => p.prompt === 'A partner or shareholder change' || p.prompt === 'A family law or estate matter' },
+    { id:'Tier A', action:'Call within 48 hours',
+      test:p => (['5 to 19','20 or more'].indexOf(p.employees) > -1 ||
+                 ['$1m to $3m','$3m to $10m','Over $10m'].indexOf(p.turnover) > -1) &&
+                ['Within 12 months','1 to 3 years'].indexOf(p.timeframe) > -1 },
+    { id:'Tier B', action:'Call within five business days',
+      test:p => p.employees !== 'None' &&
+                ['Within 12 months','1 to 3 years','3 to 5 years'].indexOf(p.timeframe) > -1 },
+    { id:'Tier C', action:'Automated email only, no call',
+      test:() => true }
+  ],
+
+  /* ---- Screen 6: profile and contact. None of this is scored. ---- */
+  details: {
+    title:'Your details',
+    intro:'Last step. These help us compare your result to similar businesses, and tell us where to send it.',
+    profile:[
+      { id:'industry',  label:'Industry', type:'text' },
+      { id:'employees', label:'Number of employees', type:'choice',
+        options:['None','1 to 4','5 to 19','20 or more'] },
+      { id:'turnover',  label:'Annual turnover', type:'choice',
+        options:['Under $500k','$500k to $1m','$1m to $3m','$3m to $10m','Over $10m'] },
+      { id:'timeframe', label:'When do you expect to step back?', type:'choice',
+        options:['Within 12 months','1 to 3 years','3 to 5 years','More than 5 years','Undecided'] },
+      { id:'prompt',    label:'What is prompting you to look at this now?', type:'choice',
+        options:['Planning my retirement','Thinking about selling','A partner or shareholder change','A family law or estate matter','Just curious for now'] },
+      { id:'postcode',  label:'Postcode', type:'text', optional:true }
+    ],
+    contactHeading:'Where we send your result',
+    contact:[
+      { id:'firstName', label:'First name', type:'text',  autocomplete:'given-name' },
+      { id:'lastName',  label:'Last name',  type:'text',  autocomplete:'family-name' },
+      { id:'business',  label:'Business name', type:'text', autocomplete:'organization', full:true },
+      { id:'email',     label:'Email', type:'email', autocomplete:'email', full:true },
+      { id:'phone',     label:'Phone', type:'tel',   autocomplete:'tel',   full:true }
+    ],
+    submit:'See my result'
+  },
+
+  /* ---- Result screen copy. ---- */
+  result: {
+    dimensionsHeading:'Where the result sits',
+    weakestHeading:'The two areas to work on first',
+    focusTag:'Focus area',
+    confirmTitle:'Your full result is on its way',
+    confirmBody:'We have sent a copy to',
+    ctaHeading:'A confidential twenty minute conversation',
+    ctaBody:'Twenty minutes with a director, by telephone or in person, to work through what your two weakest areas would actually take to address. Confidential, and nothing proceeds unless you ask it to.',
+    ctaButton:'Request a confidential conversation',
+    restart:'Start again'
+  },
+
+  /* ---- FIXED LEGAL AND PROCESS COPY. Do not reword without advice. ---- */
+  legal: {
+    resultDisclaimer:'This scorecard provides general information about business readiness. It is not financial, taxation, legal or investment advice.',
+    contactAssurance:'We will send you your result and call you once. Nothing further unless you ask.',
+    prototypeNotice:'Prototype only: no email is sent, and nothing you entered has been stored or transmitted.'
+  },
+
+  /* ---- DEMO PERSONAS. answers are option indexes 0 to 3 for Q1 to Q10. ---- */
+  demos: {
+    ready: { label:'Market Ready',
+      answers:[0,0, 0,0, 1,1, 1,0, 0,1],
+      profile:{ industry:'Precision engineering', employees:'5 to 19', turnover:'$1m to $3m',
+                timeframe:'1 to 3 years', prompt:'Thinking about selling', postcode:'4053' },
+      contact:{ firstName:'Alan', lastName:'Prescott', business:'Northgate Fabrication Pty Ltd',
+                email:'alan@northgatefab.com.au', phone:'0407 118 240' } },
+
+    nearly: { label:'Nearly Ready',
+      answers:[1,1, 1,1, 1,0, 0,1, 2,2],
+      profile:{ industry:'Environmental compliance services', employees:'5 to 19', turnover:'$1m to $3m',
+                timeframe:'1 to 3 years', prompt:'A family law or estate matter', postcode:'4557' },
+      contact:{ firstName:'Margaret', lastName:'Doyle', business:'Coastal Compliance Services',
+                email:'m.doyle@coastalcompliance.com.au', phone:'0412 663 907' } },
+
+    notyet: { label:'Not Yet Ready',
+      answers:[2,2, 1,2, 2,1, 1,2, 3,2],
+      profile:{ industry:'Plumbing and gas fitting', employees:'1 to 4', turnover:'$500k to $1m',
+                timeframe:'3 to 5 years', prompt:'Planning my retirement', postcode:'4370' },
+      contact:{ firstName:'Peter', lastName:'Vane', business:'Vane Plumbing and Gas',
+                email:'peter@vaneplumbing.com.au', phone:'0428 550 172' } },
+
+    significant: { label:'Significant Work Required',
+      answers:[3,2, 2,2, 2,2, 1,3, 3,3],
+      profile:{ industry:'Signage and print', employees:'None', turnover:'Under $500k',
+                timeframe:'More than 5 years', prompt:'Just curious for now', postcode:'2480' },
+      contact:{ firstName:'Robert', lastName:'Ashcroft', business:'Ashcroft Signs and Print',
+                email:'rob@ashcroftsigns.com.au', phone:'0439 204 815' } }
+  }
+};
+/* ============================ END OF CONFIG ============================== */
+
+/* ==========================================================================
+   PURE SCORING LOGIC
+   No DOM access below this point until the END PURE LOGIC marker, so this
+   block can be evaluated and tested on its own.
+   ========================================================================== */
+
+/* Total out of 100. answers is an array of ten option indexes (0 to 3). */
+function totalScore(answers){
+  return answers.reduce(function(sum, idx){
+    return sum + (idx === null || idx === undefined ? 0 : CONFIG.optionPoints[idx]);
+  }, 0);
+}
+
+/* Subtotal out of 20 for each of the five dimensions, in CONFIG order. */
+function dimensionScores(answers){
+  return CONFIG.dimensions.map(function(dim){
+    var score = 0;
+    CONFIG.questions.forEach(function(q, i){
+      if(q.dimension !== dim.id) return;
+      var idx = answers[i];
+      if(idx !== null && idx !== undefined) score += CONFIG.optionPoints[idx];
+    });
+    return { id:dim.id, name:dim.name, buyerView:dim.buyerView, score:score, max:20 };
+  });
+}
+
+/* First band whose min the score reaches. CONFIG.bands is descending. */
+function bandFor(score){
+  for(var i = 0; i < CONFIG.bands.length; i++){
+    if(score >= CONFIG.bands[i].min) return CONFIG.bands[i];
+  }
+  return CONFIG.bands[CONFIG.bands.length - 1];
+}
+
+/* The two lowest scoring dimensions. Ties break in CONFIG.dimensions order. */
+function weakestTwo(dims){
+  return dims
+    .map(function(d, i){ return { d:d, i:i }; })
+    .sort(function(a, b){
+      if(a.d.score !== b.d.score) return a.d.score - b.d.score;
+      return a.i - b.i;                     /* stable tie break on config order */
+    })
+    .slice(0, 2)
+    .map(function(x){ return x.d; });
+}
+
+/* Routing tier from the unscored profile answers. First match wins. */
+function tierFor(profile){
+  for(var i = 0; i < CONFIG.tiers.length; i++){
+    if(CONFIG.tiers[i].test(profile)) return CONFIG.tiers[i];
+  }
+  return CONFIG.tiers[CONFIG.tiers.length - 1];
+}
+
+/* One call, everything the result screen and the adviser panel need. */
+function evaluate(answers, profile){
+  var dims  = dimensionScores(answers);
+  var score = totalScore(answers);
+  return {
+    score:   score,
+    band:    bandFor(score),
+    dims:    dims,
+    weakest: weakestTwo(dims),
+    tier:    tierFor(profile || {})
+  };
+}
+
+/* ------------------------- END PURE LOGIC ------------------------------- */
+
+/* ==========================================================================
+   STATE
+   Held in memory only. Nothing is written to storage and nothing is sent.
+   ========================================================================== */
+var state = {
+  screen: 1,
+  answers: new Array(CONFIG.questions.length).fill(null),
+  details: {}
+};
+
+var $  = function(sel){ return document.querySelector(sel); };
+function esc(s){
+  return String(s === undefined || s === null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+/* ==========================================================================
+   RENDERING: question screens
+   ========================================================================== */
+function renderScreen(n){
+  var host = $('#screens');
+  if(n === 6) return renderDetails(host);
+
+  var sc = CONFIG.screens[n - 1];
+  var qs = CONFIG.questions.filter(function(q){ return q.screen === n; });
+
+  var html = '<div class="card"><h1 class="screen-title">' + esc(sc.title) + '</h1>' +
+             '<p class="screen-sub">' + esc(sc.sub) + '</p>';
+
+  qs.forEach(function(q){
+    var qi = CONFIG.questions.indexOf(q);
+    html += '<fieldset class="q" id="fs-' + q.id + '">' +
+            '<legend>' + esc(q.text) + '</legend>';
+    q.options.forEach(function(opt, oi){
+      var id = q.id + '-' + oi;
+      var checked = state.answers[qi] === oi ? ' checked' : '';
+      html += '<label class="opt" for="' + id + '">' +
+              '<input type="radio" id="' + id + '" name="' + q.id + '" value="' + oi + '"' + checked + '>' +
+              '<span>' + esc(opt) + '</span></label>';
+    });
+    html += '<p class="err" id="err-' + q.id + '" role="alert">Please choose one option to continue.</p>' +
+            '</fieldset>';
+  });
+
+  html += '<div class="nav">' +
+          (n > 1 ? '<button type="button" class="btn btn-ghost" id="back">Back</button>' : '') +
+          '<button type="button" class="btn btn-primary" id="next">Next</button>' +
+          '</div></div>';
+
+  host.innerHTML = html;
+
+  qs.forEach(function(q){
+    var qi = CONFIG.questions.indexOf(q);
+    Array.prototype.forEach.call(document.getElementsByName(q.id), function(input){
+      input.addEventListener('change', function(){
+        state.answers[qi] = parseInt(input.value, 10);
+        $('#err-' + q.id).classList.remove('on');
+      });
+    });
+  });
+
+  if($('#back')) $('#back').addEventListener('click', function(){ go(n - 1); });
+  $('#next').addEventListener('click', function(){
+    var ok = true, firstBad = null;
+    qs.forEach(function(q){
+      var qi = CONFIG.questions.indexOf(q);
+      var bad = state.answers[qi] === null;
+      $('#err-' + q.id).classList.toggle('on', bad);
+      if(bad){ ok = false; if(!firstBad) firstBad = $('#fs-' + q.id); }
+    });
+    if(!ok){ firstBad.scrollIntoView({ behavior:'smooth', block:'center' }); return; }
+    go(n + 1);
+  });
+}
+
+/* ==========================================================================
+   RENDERING: screen 6, profile and contact
+   ========================================================================== */
+function renderDetails(host){
+  var d = CONFIG.details;
+  var html = '<div class="card"><h1 class="screen-title">' + esc(d.title) + '</h1>' +
+             '<p class="screen-sub">' + esc(d.intro) + '</p>';
+
+  d.profile.forEach(function(f){
+    var val = state.details[f.id] || '';
+    html += '<div class="field" id="f-' + f.id + '">';
+    if(f.type === 'text'){
+      html += '<label for="i-' + f.id + '">' + esc(f.label) +
+              (f.optional ? ' <span class="optional">(optional)</span>' : '') + '</label>' +
+              '<input type="text" id="i-' + f.id + '" value="' + esc(val) + '">';
+    } else {
+      html += '<fieldset class="q" style="margin-bottom:0"><legend style="font-size:1.0625rem">' +
+              esc(f.label) + '</legend>';
+      f.options.forEach(function(opt, oi){
+        var id = f.id + '-' + oi;
+        var checked = val === opt ? ' checked' : '';
+        html += '<label class="opt" for="' + id + '">' +
+                '<input type="radio" id="' + id + '" name="' + f.id + '" value="' + esc(opt) + '"' + checked + '>' +
+                '<span>' + esc(opt) + '</span></label>';
+      });
+      html += '</fieldset>';
+    }
+    html += '<p class="err" id="err-' + f.id + '" role="alert">This one is needed to continue.</p></div>';
+  });
+
+  html += '<h2 class="subhead">' + esc(d.contactHeading) + '</h2>' +
+          '<p class="assurance">' + esc(CONFIG.legal.contactAssurance) + '</p>' +
+          '<div class="grid2">';
+  d.contact.forEach(function(f){
+    var val = state.details[f.id] || '';
+    html += '<div class="field' + (f.full ? ' full' : '') + '" id="f-' + f.id + '"' +
+            (f.full ? ' style="grid-column:1/-1"' : '') + '>' +
+            '<label for="i-' + f.id + '">' + esc(f.label) + '</label>' +
+            '<input type="' + f.type + '" id="i-' + f.id + '" value="' + esc(val) + '" ' +
+            'autocomplete="' + esc(f.autocomplete) + '">' +
+            '<p class="err" id="err-' + f.id + '" role="alert">This one is needed to continue.</p></div>';
+  });
+  html += '</div>';
+
+  html += '<div class="nav">' +
+          '<button type="button" class="btn btn-ghost" id="back">Back</button>' +
+          '<button type="button" class="btn btn-primary" id="submit">' + esc(d.submit) + '</button>' +
+          '</div></div>';
+
+  host.innerHTML = html;
+
+  d.profile.concat(d.contact).forEach(function(f){
+    var input = $('#i-' + f.id);
+    if(input){
+      input.addEventListener('input', function(){
+        state.details[f.id] = input.value.trim();
+        $('#err-' + f.id).classList.remove('on');
+      });
+    } else {
+      Array.prototype.forEach.call(document.getElementsByName(f.id), function(r){
+        r.addEventListener('change', function(){
+          state.details[f.id] = r.value;
+          $('#err-' + f.id).classList.remove('on');
+        });
+      });
+    }
+  });
+
+  $('#back').addEventListener('click', function(){ go(5); });
+  $('#submit').addEventListener('click', function(){
+    var ok = true, firstBad = null;
+    d.profile.concat(d.contact).forEach(function(f){
+      if(f.optional) return;
+      var v = (state.details[f.id] || '').trim();
+      var bad = !v;
+      if(!bad && f.type === 'email') bad = !/^[^@\s]+@[^@\s.]+\.[^@\s]+$/.test(v);
+      var errEl = $('#err-' + f.id);
+      if(bad && f.type === 'email' && v) errEl.textContent = 'Please check the email address.';
+      errEl.classList.toggle('on', bad);
+      if(bad){ ok = false; if(!firstBad) firstBad = $('#f-' + f.id); }
+    });
+    if(!ok){ firstBad.scrollIntoView({ behavior:'smooth', block:'center' }); return; }
+    go(7);
+  });
+}
+
+/* ==========================================================================
+   RENDERING: the result screen
+   ========================================================================== */
+var DIAL_LEN = 377;   /* length of a 120 radius semicircle, pi * 120 */
+
+function renderResult(){
+  var r  = evaluate(state.answers, state.details);
+  var rc = CONFIG.result;
+  var host = $('#result');
+
+  var html = '<div class="card result-card">';
+
+  /* 1. Score and dial */
+  html += '<div class="dialwrap">' +
+    '<svg class="dial" viewBox="0 0 300 182" role="img" aria-label="Your readiness score is ' +
+      r.score + ' out of 100">' +
+      '<path class="dial-track" d="M30 150 A120 120 0 0 1 270 150"></path>' +
+      '<path class="dial-fill" id="dial-fill" d="M30 150 A120 120 0 0 1 270 150"></path>' +
+      '<text class="dial-value" id="dial-value" x="150" y="140" text-anchor="middle">0</text>' +
+      '<text class="dial-scale" x="150" y="172" text-anchor="middle">out of 100</text>' +
+    '</svg>' +
+    '<h1 class="band-name">' + esc(r.band.name) + '</h1>' +
+  '</div>';
+
+  /* 2 and 3. Band name and what it means */
+  html += '<div class="band-summary"><p>' + esc(r.band.summary) + '</p></div>';
+
+  /* 4. The five dimensions */
+  html += '<section class="section"><h2>' + esc(rc.dimensionsHeading) + '</h2>';
+  r.dims.forEach(function(d, i){
+    var isFocus = r.weakest.indexOf(d) > -1;
+    html += '<div class="dim' + (isFocus ? ' focus-area' : '') + '">' +
+      '<div class="dim-top"><span class="dim-name">' + esc(d.name) +
+        (isFocus ? '<span class="tag-focus">' + esc(rc.focusTag) + '</span>' : '') + '</span>' +
+        '<span class="dim-score">' + d.score + ' / 20</span></div>' +
+      '<div class="dim-track"><div class="dim-fill" data-pct="' + (d.score / 20 * 100) + '"></div></div>' +
+    '</div>';
+  });
+  html += '</section>';
+
+  /* 5. The two weakest, with what a buyer would make of the gap */
+  html += '<section class="section"><h2>' + esc(rc.weakestHeading) + '</h2>';
+  r.weakest.forEach(function(d, i){
+    html += '<div class="weak">' +
+      '<div class="weak-head">' +
+        '<span class="weak-title"><span class="weak-num">' + (i + 1) + '.</span> ' + esc(d.name) + '</span>' +
+        '<span class="weak-score">' + d.score + ' / 20</span>' +
+      '</div><p>' + esc(d.buyerView) + '</p></div>';
+  });
+  html += '</section>';
+
+  /* 6. Email confirmation, with the prototype note */
+  html += '<div class="confirm">' +
+    '<div class="confirm-head">' +
+      '<svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true" focusable="false">' +
+        '<circle cx="11" cy="11" r="10" fill="none" stroke="currentColor" stroke-width="1.5"></circle>' +
+        '<path d="M6.5 11.3l3 3 6-6.3" fill="none" stroke="currentColor" stroke-width="2" ' +
+        'stroke-linecap="round" stroke-linejoin="round"></path>' +
+      '</svg>' +
+      '<div><strong>' + esc(rc.confirmTitle) + '</strong><br>' +
+      esc(rc.confirmBody) + ' <span class="confirm-email">' + esc(state.details.email || '') + '</span></div>' +
+    '</div>' +
+    '<p class="proto"><b>Note</b><br>' + esc(CONFIG.legal.prototypeNotice) + '</p>' +
+  '</div>';
+
+  /* 7. The single call to action */
+  html += '<div class="cta"><h2>' + esc(rc.ctaHeading) + '</h2>' +
+    '<p>' + esc(rc.ctaBody) + '</p>' +
+    '<button type="button" class="btn" id="cta-btn">' + esc(rc.ctaButton) + '</button></div>';
+
+  html += '<p class="disclaimer">' + esc(CONFIG.legal.resultDisclaimer) + '</p>' +
+          '<div class="restart"><button type="button" class="textlink" id="restart">' +
+          esc(rc.restart) + '</button></div>';
+
+  html += '</div>';
+  host.innerHTML = html;
+
+  $('#restart').addEventListener('click', resetAll);
+  $('#cta-btn').addEventListener('click', function(){
+    window.alert('Prototype only. In the live tool this opens the booking step. ' +
+                 'Nothing has been sent and nothing has been stored.');
+  });
+
+  animateResult(r);
+}
+
+function animateResult(r){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fill = $('#dial-fill'), num = $('#dial-value');
+  var target = DIAL_LEN - (DIAL_LEN * r.score / 100);
+
+  if(reduce){
+    fill.style.strokeDashoffset = target;
+    num.textContent = r.score;
+    Array.prototype.forEach.call(document.querySelectorAll('.dim-fill'), function(el){
+      el.style.width = el.getAttribute('data-pct') + '%';
+    });
+    return;
+  }
+
+  requestAnimationFrame(function(){
+    fill.style.strokeDashoffset = target;
+  });
+
+  var t0 = null, dur = 1000;
+  function step(ts){
+    if(t0 === null) t0 = ts;
+    var p = Math.min(1, (ts - t0) / dur);
+    var eased = 1 - Math.pow(1 - p, 3);
+    num.textContent = Math.round(r.score * eased);
+    if(p < 1) requestAnimationFrame(step); else num.textContent = r.score;
+  }
+  requestAnimationFrame(step);
+
+  /* Bars fill after the dial, staggered so the shape reads left to right. */
+  Array.prototype.forEach.call(document.querySelectorAll('.dim-fill'), function(el, i){
+    window.setTimeout(function(){
+      el.style.width = el.getAttribute('data-pct') + '%';
+    }, 900 + i * 90);
+  });
+}
+
+/* ==========================================================================
+   NAVIGATION
+   ========================================================================== */
+function go(n){
+  state.screen = n;
+  var onResult = (n === 7);
+  $('#progress').hidden = onResult;
+  $('#screens').hidden  = onResult;
+  $('#result').hidden   = !onResult;
+
+  if(onResult){
+    renderResult();
+  } else {
+    renderScreen(n);
+    var name = (n === 6) ? CONFIG.details.title : CONFIG.screens[n - 1].title;
+    $('#progress-step').textContent = 'Step ' + n + ' of 6';
+    $('#progress-name').textContent = name;
+    $('#progress-fill').style.width = (n / 6 * 100) + '%';
+    $('.progress-track').setAttribute('aria-valuenow', n);
+  }
+  window.scrollTo({ top:0, behavior:'auto' });
+  var h = document.querySelector('#screens h1, #result h1');
+  if(h){ h.setAttribute('tabindex','-1'); h.focus({ preventScroll:true }); }
+}
+
+function resetAll(){
+  state.screen = 1;
+  state.answers = new Array(CONFIG.questions.length).fill(null);
+  state.details = {};
+  $('#sheet').classList.remove('on');
+  go(1);
+}
+
+/* ==========================================================================
+   PRESENTER MODE
+   Hidden behind ?demo=1 or the small corner toggle. Not part of the client
+   experience. Nothing here is visible unless it is deliberately opened.
+   ========================================================================== */
+function showDemoBar(on){
+  $('#demobar').classList.toggle('on', on);
+  document.body.classList.toggle('demo-on', on);
+  $('#demo-toggle').setAttribute('aria-expanded', on ? 'true' : 'false');
+  $('#demo-toggle').hidden = on;
+}
+
+function fillDemo(key){
+  var demo = CONFIG.demos[key];
+  if(!demo) return;
+  state.answers = demo.answers.slice();
+  state.details = {};
+  Object.keys(demo.profile).forEach(function(k){ state.details[k] = demo.profile[k]; });
+  Object.keys(demo.contact).forEach(function(k){ state.details[k] = demo.contact[k]; });
+  $('#sheet').classList.remove('on');
+  go(7);
+}
+
+/* ==========================================================================
+   ADVISER PANEL
+   Styled as the plain email that would land in the director inbox.
+   ========================================================================== */
+function renderAdviserPanel(){
+  var complete = state.answers.every(function(a){ return a !== null; });
+  var r = evaluate(state.answers, state.details);
+  var d = state.details;
+  var name = ((d.firstName || '') + ' ' + (d.lastName || '')).trim();
+
+  var html = '<div class="mailhead">' +
+    '<div><b>From</b><span>' + esc(CONFIG.meta.toolName) + ' &lt;noreply@micasabusinessadvisory.com.au&gt;</span></div>' +
+    '<div><b>To</b><span>' + esc(CONFIG.meta.adviserInbox) + '</span></div>' +
+    '<div><b>Subject</b><span>' + esc(r.tier.id) + ' lead: ' + esc(d.business || 'Business name not given') +
+      ' (' + r.score + '/100, ' + esc(r.band.name) + ')</span></div>' +
+  '</div><div class="mailbody">';
+
+  if(!complete){
+    html += '<p style="padding:.75rem;background:#FBEAEA;border-left:4px solid #A22C2C;color:#7A1F1F">' +
+            'Run not complete. Unanswered questions are counted as zero in this preview.</p>';
+  }
+
+  html += '<h3>Routing</h3>' +
+    '<div class="tierbox"><div class="tname">' + esc(r.tier.id) + '</div>' +
+    '<div class="taction">Action: ' + esc(r.tier.action) + '</div></div>';
+
+  html += '<h3>Result</h3><dl style="margin:0">' +
+    kv('Score', r.score + ' out of 100') +
+    kv('Band', r.band.name) +
+    kv('Weakest area 1', r.weakest[0].name + ' (' + r.weakest[0].score + '/20)') +
+    kv('Weakest area 2', r.weakest[1].name + ' (' + r.weakest[1].score + '/20)') +
+    '</dl>';
+
+  html += '<h3>Dimension subtotals</h3><dl style="margin:0">';
+  r.dims.forEach(function(dim){ html += kv(dim.name, dim.score + ' / 20'); });
+  html += '</dl>';
+
+  html += '<h3>Business profile</h3><dl style="margin:0">';
+  CONFIG.details.profile.forEach(function(f){
+    html += kv(f.label, d[f.id] || 'Not given');
+  });
+  html += '</dl>';
+
+  html += '<h3>Contact</h3><dl style="margin:0">';
+  CONFIG.details.contact.forEach(function(f){
+    html += kv(f.label, d[f.id] || 'Not given');
+  });
+  html += '</dl>';
+
+  html += '<h3>All ten answers</h3>';
+  CONFIG.questions.forEach(function(q, i){
+    var idx = state.answers[i];
+    var ans = (idx === null) ? 'Not answered' : q.options[idx];
+    var pts = (idx === null) ? 0 : CONFIG.optionPoints[idx];
+    html += '<div class="qa"><div class="qtext">' + (i + 1) + '. ' + esc(q.text) + '</div>' +
+            '<div><span class="atext">' + esc(ans) + '</span> ' +
+            '<span class="pts">' + pts + ' pts</span></div></div>';
+  });
+
+  html += '</div><p class="sheet-note">Prototype preview of the adviser notification. ' +
+          'No email is sent and no record is created. Layout and fields are indicative.</p>';
+
+  $('#sheet-content').innerHTML = html;
+  $('#sheet').classList.add('on');
+  $('#sheet-close').focus();
+}
+
+function kv(k, v){
+  return '<div class="kv"><dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd></div>';
+}
+
+/* ==========================================================================
+   INIT
+   ========================================================================== */
+$('#draftflag').textContent = CONFIG.meta.draftFlag;
+
+$('#demo-toggle').addEventListener('click', function(){ showDemoBar(true); });
+$('#demo-hide').addEventListener('click', function(){ showDemoBar(false); $('#demo-toggle').focus(); });
+$('#demo-reset').addEventListener('click', resetAll);
+$('#show-adviser').addEventListener('click', renderAdviserPanel);
+$('#sheet-close').addEventListener('click', function(){ $('#sheet').classList.remove('on'); });
+$('#sheet').addEventListener('click', function(e){
+  if(e.target === $('#sheet')) $('#sheet').classList.remove('on');
+});
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && $('#sheet').classList.contains('on')) $('#sheet').classList.remove('on');
+});
+Array.prototype.forEach.call(document.querySelectorAll('[data-fill]'), function(btn){
+  btn.addEventListener('click', function(){ fillDemo(btn.getAttribute('data-fill')); });
+});
+$('#jump').addEventListener('change', function(){
+  var v = $('#jump').value;
+  if(v){ go(parseInt(v, 10)); $('#jump').value = ''; }
+});
+
+/* Boundary self test. Open the file with ?selftest=1 and read the console. */
+if(/[?&]selftest=1/.test(window.location.search)){
+  [[29,'Significant Work Required'],[30,'Not Yet Ready'],[54,'Not Yet Ready'],
+   [55,'Nearly Ready'],[79,'Nearly Ready'],[80,'Market Ready'],
+   [0,'Significant Work Required'],[100,'Market Ready']].forEach(function(t){
+    var got = bandFor(t[0]).name;
+    console.log((got === t[1] ? 'PASS' : 'FAIL') + '  score ' + t[0] + ' -> ' + got);
+  });
+}
+
+go(1);
+
+if(/[?&]demo=1/.test(window.location.search)) showDemoBar(true);
+
+/* Optional: ?fill=ready|nearly|notyet|significant lands straight on that
+   result. Handy for a bookmark, and for checking a single band quickly. */
+var fillParam = (window.location.search.match(/[?&]fill=([a-z]+)/) || [])[1];
+if(fillParam && CONFIG.demos[fillParam]) fillDemo(fillParam);
+
+/* Optional: add &adviser=1 to open the adviser inbox view straight away. */
+if(fillParam && /[?&]adviser=1/.test(window.location.search)) renderAdviserPanel();
+
+/* Optional: ?screen=1..7 opens directly on that screen, the same set the
+   jump menu offers. Screen 7 is the result. */
+var screenParam = (window.location.search.match(/[?&]screen=([1-7])/) || [])[1];
+if(screenParam) go(parseInt(screenParam, 10));
+</script>
+</body>
+</html>
