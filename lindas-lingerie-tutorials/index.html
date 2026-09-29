@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Bra Making Tutorials | Linda's Lingerie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@400;700&family=Noto+Serif:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink-light: #fcc6e6;
+    --pink: #f75fbe;
+    --pink-hot: #ff2fb0;
+    --plum: #8a1a5e;
+    --plum-dark: #5e1040;
+    --ink: #3a3a3a;
+    --muted: #6b6b6b;
+    --line: #ececec;
+    --card: #ffffff;
+    --bg: #fff7fb;
+    --pending: #b0b0b0;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 17px/1.6 "Lato", system-ui, sans-serif;
+  }
+  a { color: var(--plum); }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 16px; }
+
+  /* Header */
+  .site-header {
+    background: linear-gradient(90deg, var(--pink-light), #f9a3d6);
+    padding: 18px 0;
+  }
+  .brand { text-decoration: none; display: inline-block; line-height: 1; }
+  .brand-name {
+    font-family: "Great Vibes", cursive;
+    font-size: 2.4rem;
+    color: var(--plum);
+  }
+  .brand-sub {
+    display: block;
+    font-family: "Noto Serif", Georgia, serif;
+    font-size: .85rem;
+    color: #8c6a7e;
+    margin-top: 2px;
+  }
+  .brand img { max-height: 80px; width: auto; display: block; }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(120deg, var(--pink), var(--pink-hot));
+    color: #fff;
+    text-align: center;
+    padding: 56px 0 60px;
+  }
+  .hero h1 {
+    font-family: "Noto Serif", Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(1.7rem, 4.5vw, 2.4rem);
+    margin: 0 0 12px;
+  }
+  .hero p { margin: 0 auto; max-width: 620px; }
+
+  /* Jump links */
+  .jump {
+    display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+    margin: -22px auto 0; position: relative;
+  }
+  .jump a {
+    background: #fff; color: var(--plum);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 10px 20px;
+    font-weight: 700; font-size: .95rem;
+    text-decoration: none;
+    box-shadow: 0 4px 14px rgba(138, 26, 94, .12);
+  }
+  .jump a:hover { background: var(--plum); color: #fff; }
+
+  /* Sections */
+  main { padding: 40px 0 64px; }
+  .course {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 28px 24px 12px;
+    margin-bottom: 32px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .04);
+    scroll-margin-top: 16px;
+  }
+  .course h2 {
+    font-family: "Noto Serif", Georgia, serif;
+    font-weight: 600;
+    font-size: 1.5rem;
+    color: var(--plum);
+    margin: 0 0 6px;
+  }
+  .course .intro { color: var(--muted); margin: 0 0 18px; }
+
+  .lessons { list-style: none; margin: 0; padding: 0; counter-reset: lesson; }
+  .lessons li { border-top: 1px solid var(--line); }
+  .lessons a {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 4px;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .lessons a:hover .title { color: var(--pink-hot); }
+  .play {
+    flex: 0 0 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--pink-light);
+    display: grid; place-items: center;
+  }
+  .play svg { width: 14px; height: 14px; fill: var(--plum); margin-left: 2px; }
+  .lessons a:hover .play { background: var(--pink-hot); }
+  .lessons a:hover .play svg { fill: #fff; }
+  .text { flex: 1; min-width: 0; }
+  .title { font-weight: 700; display: block; }
+  .desc { display: block; color: var(--muted); font-size: .93rem; }
+  .ext { color: var(--muted); font-size: .85rem; white-space: nowrap; }
+
+  /* Links not yet filled in (href="#") show as pending */
+  .lessons a[href="#"] { pointer-events: none; }
+  .lessons a[href="#"] .title { color: var(--pending); }
+  .lessons a[href="#"] .ext::after { content: " (link pending)"; }
+
+  footer {
+    text-align: center; color: var(--muted); font-size: .88rem;
+    padding: 0 0 40px;
+  }
+
+  @media (max-width: 520px) {
+    body { font-size: 16px; }
+    .course { padding: 22px 16px 8px; }
+    .jump { gap: 8px; }
+    .jump a { padding: 8px 12px; font-size: .85rem; }
+    .ext { display: none; }
+    .lessons a[href="#"] .title::after { content: " (pending)"; font-weight: 400; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="https://lindaslingerie.com.au/">
+      <!-- To use the logo instead: replace the two spans with
+           <img src="logo.png" alt="Linda's Lingerie"> and upload logo.png to this folder. -->
+      <span class="brand-name">Linda's Lingerie</span>
+      <span class="brand-sub">Linda Jobson, Bra Specialist</span>
+    </a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>Bra Making Workshop &amp; Tutorials</h1>
+    <p>Learn how to make a bra in the Bra Making Workshop. The Advanced Bra Tutorials teach you advanced techniques for sewing a bra and customising your existing bras.</p>
+  </div>
+</section>
+
+<nav class="jump wrap" aria-label="Sections">
+  <a href="#workshop">Workshop Series</a>
+  <a href="#advanced">Advanced Tutorials</a>
+</nav>
+
+<main class="wrap">
+
+  <!--
+    HOW TO EDIT
+    Each lesson is one <li>. Replace href="#" with the Vimeo link.
+    Lessons still set to "#" show greyed out as "link pending".
+  -->
+
+  <section class="course" id="workshop">
+    <h2>The Bra Making Workshop Series</h2>
+    <p class="intro">For experienced sewers wanting to learn to sew their own bras. Work through the lessons in order.</p>
+    <ol class="lessons">
+      <li><a href="#" target="_blank" rel="noopener">
+        <span class="play"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg></span>
+        <span class="text"><span class="title">Bra Making: Introduction</span></span>
+        <span class="ext">Watch on Vimeo</span></a></li>
+      <li><a href="#" target="_blank" rel="noopener">
+        <span class="play"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg></span>
+        <span class="text"><span class="title">Bra Making: Checklist</span></span>
+        <span class="ext">Watch on Vimeo</span></a></li>
+      <li><a href="#" target="_blank" rel="noopener">
+        <span class="play"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg></span>
+        <span class="text"><span class="title">Lesson 1: Pattern Sizing</span></span>
+        <span class="ext">Watch on Vimeo</span></a></li>
+      <li><a href="#" target="_blank" rel="noopener">
+        <span class="play"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg></span>
+        <span class="text"><span class="title">Lesson 2: Tracing the Pattern</span></span>
+        <span class="ext">Watch on Vimeo</span></a></li>
+      <li><a href="#" target="_blank" rel="noopener">
+        <span class="play"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg></span>
+        <span class="text"><span class="title">Lesson 3: Cutting Out the Pattern</span></span>
+        <span class="ext">Watch on Vimeo</span></a></li>
+      <li><a href="#" target="_blank" rel="noopener">
+        <span class="play"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg></span>
+        <span class="text"><span class="title">Lesson 4: Sewing the Bra</span></span>
+        <span class="ext">Watch on Vimeo</span></a></li>
+      <li><a href="#" target="_blank" rel="noopener">
+        <span class="play"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg></span>
+        <span class="text"><span class="title">Lesson 5: Bonding the Fabric</span></span>
+        <span class="ext">Watch on Vimeo</span></a></li>
+    </ol>
+  </section>
+
+  <section class="course" id="advanced">
+    <h2>Advanced Bra Making Tutorials</h2>
+    <p class="intro">Eight standalone tutorials covering advanced techniques and alterations to new or existing bras. Watch in any order.</p>
+    <ol class="lessons">
+      <li><a href="#" target="_blank" rel="noopener">
+        <span class="play"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg></span>
+        <span class="text"><span class="title">Replacing Bra Straps</span></span>
+        <span class="ext">Watch on Vimeo</span></a></li>
+      <li><a href="#" target="_blank" rel="noopener">
+        <span class="play"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg></span>
+        <span class="text"><span class="title">Front Adjustment for Straps</span></span>
+        <span class="ext">Watch on Vimeo</span></a></li>
+      <li><a href="#" target="_blank" rel="noopener">
+        <span class="play"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg></span>
+        <span class="text"><span class="title">Replacing Backs, Hooks &amp; Eyes</span></span>
+        <span class="ext">Watch on Vimeo</span></a></li>
+      <li><a href="#" target="_blank" rel="noopener">
+        <span class="play"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg></span>
+        <span class="text"><span class="title">Padded Cups</span></span>
+        <span class="ext">Watch on Vimeo</span></a></li>
+      <li><a href="#" target="_blank" rel="noopener">
+        <span class="play"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg></span>
+        <span class="text"><span class="title">Using Lace in the Bra Frame</span></span>
+        <span class="ext">Watch on Vimeo</span></a></li>
+      <li><a href="#" target="_blank" rel="noopener">
+        <span class="play"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg></span>
+        <span class="text"><span class="title">Front Opening Bras</span></span>
+        <span class="ext">Watch on Vimeo</span></a></li>
+      <li><a href="#" target="_blank" rel="noopener">
+        <span class="play"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg></span>
+        <span class="text"><span class="title">Molded Cup Bra Adjustment</span></span>
+        <span class="ext">Watch on Vimeo</span></a></li>
+      <li><a href="#" target="_blank" rel="noopener">
+        <span class="play"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg></span>
+        <span class="text">
+          <span class="title">Padded and Fabric Straps</span>
+          <span class="desc">Add a padded strap or a pretty fabric strap to a new or existing bra.</span>
+        </span>
+        <span class="ext">Watch on Vimeo</span></a></li>
+    </ol>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    &copy; Linda's Lingerie &middot; <a href="https://lindaslingerie.com.au/">lindaslingerie.com.au</a><br>
+    These videos are for enrolled students only. Please do not share the links.
+  </div>
+</footer>
+
+</body>
+</html>
