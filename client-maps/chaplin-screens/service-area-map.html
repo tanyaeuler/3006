@@ -113,10 +113,8 @@
   .csm-label.at-l { right: calc(100% + 2px); top: 38%; transform: translateY(-50%); }
   .csm-label.is-hidden { opacity: 0; }
 
-  /* Dot labels: smaller, sitting beside the dot. */
+  /* Dot labels: smaller, centred under the dot (or above if blocked). */
   .csm-dotwrap .csm-label { font-size: 11px; font-weight: 600; padding: 1px 4px; }
-  .csm-dotwrap .csm-label.at-r { left: calc(100% - 5px); top: 50%; }
-  .csm-dotwrap .csm-label.at-l { right: calc(100% - 5px); top: 50%; }
   .csm-dotwrap .csm-label.at-b { top: calc(100% - 6px); }
   .csm-dotwrap .csm-label.at-t { bottom: calc(100% - 6px); }
 
@@ -223,6 +221,9 @@
     .csm-pin { width: 26px; height: 35px; }
     .csm-hq .csm-pin { width: 32px; height: 42px; }
     .csm-hq .csm-label { font-size: 11px; }
+  }
+  @media (max-width: 400px) {
+    .csm-hq .csm-label { font-size: 10px; letter-spacing: .02em; padding: 2px 6px; }
     .csm-dotwrap .csm-label { font-size: 10px; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -374,7 +375,7 @@
         '<span class="csm-shadow"></span>' +
         '<span class="csm-label at-b">' + escapeHtml(item.name) + '</span>'
       : '<span class="csm-dot"></span>' +
-        '<span class="csm-label at-r">' + escapeHtml(item.name) + '</span>';
+        '<span class="csm-label at-b">' + escapeHtml(item.name) + '</span>';
     var html = '<' + tag + ' class="csm-pinwrap' + (hq ? ' csm-hq' : '') + (full ? '' : ' csm-dotwrap') + '"' + attrs + '>' +
       inner + '</' + tag + '>';
 
@@ -470,17 +471,18 @@
   }
 
   /* ---- Label placement ----
-     Pin labels try below, right, left, then above; dot labels try right,
-     left, below, then above. Each label takes
+     Suburb pin labels try below, right, left, then above; dot labels go
+     below the dot, or above it if below is blocked. Each label takes
      the first spot clear of other pins, labels and the map edge.
      If none is clear it hides until its pin is hovered. */
   var SPOTS = ['at-b', 'at-r', 'at-l', 'at-t'];
-  var DOT_SPOTS = ['at-r', 'at-l', 'at-b', 'at-t'];
+  var DOT_SPOTS = ['at-b', 'at-t'];
   function overlaps(a, b, pad) {
     return !(a.right + pad <= b.left || b.right + pad <= a.left || a.bottom + pad <= b.top || b.bottom + pad <= a.top);
   }
-  function placeLabels() {
+  function layoutWith(hqSpot) {
     var frame = mapEl.getBoundingClientRect();
+    var shown = 0;
     // Marker boxes (not the animated pin) so this works mid-animation.
     var taken = entries.map(function (e) { return { r: e.wrap.getBoundingClientRect(), owner: e }; });
     function fits(r, owner) {
@@ -492,7 +494,8 @@
       .filter(function (e) { return e.label; })
       .sort(function (a, b) { return a.priority - b.priority; })
       .forEach(function (e) {
-        var spots = e.wrap.classList.contains('csm-dotwrap') ? DOT_SPOTS : SPOTS;
+        var spots = e.wrap.classList.contains('csm-dotwrap') ? DOT_SPOTS
+          : (e.kind === 'hq' ? [hqSpot] : SPOTS);
         var placed = null;
         for (var i = 0; i < spots.length && !placed; i++) {
           SPOTS.forEach(function (c) { e.label.classList.remove(c); });
@@ -507,7 +510,20 @@
         var keep = placed || e.priority === 0;
         e.label.classList.toggle('is-hidden', !keep);
         if (keep) taken.push({ r: placed || e.label.getBoundingClientRect(), owner: null });
+        if (placed) shown++;
       });
+    return shown;
+  }
+  // The head office label is placed first, so its side decides how much
+  // room the suburbs around it get. Try each side and keep the one that
+  // leaves the most labels on show (ties go to the earlier side).
+  function placeLabels() {
+    var best = SPOTS[0], bestShown = -1;
+    SPOTS.forEach(function (spot) {
+      var shown = layoutWith(spot);
+      if (shown > bestShown) { best = spot; bestShown = shown; }
+    });
+    if (best !== SPOTS[SPOTS.length - 1]) layoutWith(best);
   }
   placeLabels();
 
