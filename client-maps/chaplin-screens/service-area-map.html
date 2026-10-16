@@ -113,6 +113,13 @@
   .csm-label.at-l { right: calc(100% + 2px); top: 38%; transform: translateY(-50%); }
   .csm-label.is-hidden { opacity: 0; }
 
+  /* Dot labels: smaller, sitting beside the dot. */
+  .csm-dotwrap .csm-label { font-size: 11px; font-weight: 600; padding: 1px 4px; }
+  .csm-dotwrap .csm-label.at-r { left: calc(100% - 5px); top: 50%; }
+  .csm-dotwrap .csm-label.at-l { right: calc(100% - 5px); top: 50%; }
+  .csm-dotwrap .csm-label.at-b { top: calc(100% - 6px); }
+  .csm-dotwrap .csm-label.at-t { bottom: calc(100% - 6px); }
+
   .csm-hq .csm-pin { width: 38px; height: 50px; }
   .csm-hq .csm-label {
     padding: 3px 8px;
@@ -209,34 +216,6 @@
   }
   .csm-card-note { display: block; margin-top: 4px; font-size: 13px; color: var(--csm-muted); }
 
-  /* ---- Suburb buttons ---- */
-  .csm-areas { margin-top: 14px; }
-  .csm-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
-  .csm-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 40px;
-    padding: 8px 14px;
-    border-radius: 999px;
-    border: 1.5px solid #d5dbe7;
-    background: #ffffff;
-    color: var(--csm-ink);
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 1.2;
-    text-decoration: none;
-    cursor: default;
-    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
-    -webkit-tap-highlight-color: transparent;
-  }
-  a.csm-chip { border-color: var(--csm-blue); color: var(--csm-blue); cursor: pointer; }
-  a.csm-chip .csm-arrow { transition: transform .15s ease; }
-  .csm-chip.is-hot { border-color: var(--csm-blue); background: #f1f4fa; }
-  a.csm-chip.is-hot,
-  a.csm-chip:focus-visible { background: var(--csm-blue); color: var(--csm-yellow); outline: none; }
-  a.csm-chip.is-hot .csm-arrow { transform: translateX(3px); }
-  .csm-also { margin: 12px 2px 0; font-size: 14px; color: var(--csm-muted); }
 
   @media (max-width: 600px) {
     .csm-map { border-radius: 10px; }
@@ -244,7 +223,7 @@
     .csm-pin { width: 26px; height: 35px; }
     .csm-hq .csm-pin { width: 32px; height: 42px; }
     .csm-hq .csm-label { font-size: 11px; }
-    .csm-chip { font-size: 13px; padding: 7px 12px; }
+    .csm-dotwrap .csm-label { font-size: 10px; }
   }
   @media (prefers-reduced-motion: reduce) {
     .csm *, .csm *::before, .csm *::after { animation: none !important; transition: none !important; }
@@ -256,10 +235,6 @@
     <div class="csm-map" id="csm-map" role="region" aria-label="Map of the Chaplin Screens service area"></div>
     <div class="csm-card" aria-hidden="true"></div>
   </div>
-  <nav class="csm-areas" aria-label="Suburbs we service">
-    <ul class="csm-chips"></ul>
-    <p class="csm-also"></p>
-  </nav>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -271,8 +246,8 @@
   /* =====================================================================
      EDIT HERE
      url: the suburb's service-area page. With a url the suburb gets a full
-     pin, a label and a link. Leave null and it shows as a small dot (name
-     on hover) until the page exists. Only https links are accepted.
+     pin and a link. Leave null and it shows as a small labelled dot until
+     the page exists. Only https links are accepted.
      ===================================================================== */
   var HEAD_OFFICE = {
     name: 'Chaplin Screens',
@@ -296,9 +271,6 @@
     { name: 'Flagstone',    lat: -27.8090, lng: 152.9480, url: 'https://www.chaplinscreens.com.au/flagstone-security-screens/' }
   ];
 
-  // Listed in the line under the buttons; not drawn on the map.
-  var ALSO_SERVICING = ['Sunnybank', 'Redbank Plains', 'South Maclean', 'Ormeau', 'Woodhill', 'Tamborine'];
-
   // Service-area boundary, traced from the dotted line on the supplied map.
   var SERVICE_AREA = [
     [-27.560, 152.930], [-27.555, 153.100], [-27.600, 153.255],
@@ -316,8 +288,6 @@
   if (!root) return;
   var mapEl = root.querySelector('.csm-map');
   var cardEl = root.querySelector('.csm-card');
-  var chipList = root.querySelector('.csm-chips');
-  var alsoEl = root.querySelector('.csm-also');
   if (mapEl._leaflet_id) return;
 
   function escapeHtml(s) {
@@ -403,7 +373,8 @@
       ? '<span class="csm-pin">' + (hq ? pinSvg(YELLOW, BLUE, BLUE) : pinSvg(BLUE, '#ffffff', YELLOW)) + '</span>' +
         '<span class="csm-shadow"></span>' +
         '<span class="csm-label at-b">' + escapeHtml(item.name) + '</span>'
-      : '<span class="csm-dot"></span>';
+      : '<span class="csm-dot"></span>' +
+        '<span class="csm-label at-r">' + escapeHtml(item.name) + '</span>';
     var html = '<' + tag + ' class="csm-pinwrap' + (hq ? ' csm-hq' : '') + (full ? '' : ' csm-dotwrap') + '"' + attrs + '>' +
       inner + '</' + tag + '>';
 
@@ -420,8 +391,7 @@
       item: item, kind: kind, url: url, marker: marker, wrap: wrap,
       label: wrap.querySelector('.csm-label'),
       priority: hq ? 0 : (url ? 1 : 2),
-      baseZ: baseZ,
-      chip: null
+      baseZ: baseZ
     };
     entries.push(entry);
 
@@ -440,16 +410,18 @@
     return entry;
   }
 
+  mapEl.setAttribute('aria-label', 'Map of the Chaplin Screens service area, covering ' +
+    SUBURBS.map(function (s) { return s.name; }).join(', '));
+
   addMarker(HEAD_OFFICE, 'hq');
   SUBURBS.forEach(function (s) { addMarker(s, 'suburb'); });
 
-  /* ---- Hot state: one place drives pin, card and button together ---- */
+  /* ---- Hot state: one place drives the marker and its card ---- */
   var hotEntry = null;
   var flashTimer;
   function setHot(entry, on) {
     if (on && hotEntry && hotEntry !== entry) setHot(hotEntry, false);
     entry.wrap.classList.toggle('is-hot', on);
-    if (entry.chip) entry.chip.classList.toggle('is-hot', on);
     entry.marker.setZIndexOffset(on ? 3000 : entry.baseZ);
     if (on) { hotEntry = entry; showCard(entry); }
     else if (hotEntry === entry) { hotEntry = null; cardEl.classList.remove('is-on'); }
@@ -498,72 +470,47 @@
   }
 
   /* ---- Label placement ----
-     Each visible label tries below, right, left, then above its pin and
-     takes the first spot clear of other pins, labels and the map edge.
+     Pin labels try below, right, left, then above; dot labels try right,
+     left, below, then above. Each label takes
+     the first spot clear of other pins, labels and the map edge.
      If none is clear it hides until its pin is hovered. */
   var SPOTS = ['at-b', 'at-r', 'at-l', 'at-t'];
+  var DOT_SPOTS = ['at-r', 'at-l', 'at-b', 'at-t'];
   function overlaps(a, b, pad) {
     return !(a.right + pad <= b.left || b.right + pad <= a.left || a.bottom + pad <= b.top || b.bottom + pad <= a.top);
   }
   function placeLabels() {
     var frame = mapEl.getBoundingClientRect();
     // Marker boxes (not the animated pin) so this works mid-animation.
-    var taken = entries.map(function (e) { return e.wrap.getBoundingClientRect(); });
-    function fits(r) {
+    var taken = entries.map(function (e) { return { r: e.wrap.getBoundingClientRect(), owner: e }; });
+    function fits(r, owner) {
       return r.left >= frame.left + 2 && r.right <= frame.right - 2 &&
              r.top >= frame.top + 2 && r.bottom <= frame.bottom - 16 &&
-             !taken.some(function (t) { return overlaps(r, t, 2); });
+             !taken.some(function (t) { return t.owner !== owner && overlaps(r, t.r, 2); });
     }
     entries
       .filter(function (e) { return e.label; })
       .sort(function (a, b) { return a.priority - b.priority; })
       .forEach(function (e) {
+        var spots = e.wrap.classList.contains('csm-dotwrap') ? DOT_SPOTS : SPOTS;
         var placed = null;
-        for (var i = 0; i < SPOTS.length && !placed; i++) {
+        for (var i = 0; i < spots.length && !placed; i++) {
           SPOTS.forEach(function (c) { e.label.classList.remove(c); });
-          e.label.classList.add(SPOTS[i]);
+          e.label.classList.add(spots[i]);
           var r = e.label.getBoundingClientRect();
-          if (fits(r)) placed = r;
+          if (fits(r, e)) placed = r;
         }
         if (!placed) {
           SPOTS.forEach(function (c) { e.label.classList.remove(c); });
-          e.label.classList.add('at-b');
+          e.label.classList.add(spots[0]);
         }
         var keep = placed || e.priority === 0;
         e.label.classList.toggle('is-hidden', !keep);
-        if (keep) taken.push(placed || e.label.getBoundingClientRect());
+        if (keep) taken.push({ r: placed || e.label.getBoundingClientRect(), owner: null });
       });
   }
   placeLabels();
 
-  /* ---- Suburb buttons under the map, linked to the pins ---- */
-  entries
-    .filter(function (e) { return e.kind === 'suburb'; })
-    .sort(function (a, b) { return a.item.name.localeCompare(b.item.name); })
-    .forEach(function (e) {
-      var li = document.createElement('li');
-      var chip = document.createElement(e.url ? 'a' : 'span');
-      chip.className = 'csm-chip';
-      if (e.url) {
-        chip.href = e.url;
-        chip.target = '_top';
-        chip.innerHTML = escapeHtml(e.item.name) + '<span class="csm-arrow" aria-hidden="true">&rarr;</span>';
-      } else {
-        chip.textContent = e.item.name;
-      }
-      chip.addEventListener('mouseenter', function () { if (!lastPointerWasTouch) setHot(e, true); });
-      chip.addEventListener('mouseleave', function () { setHot(e, false); });
-      chip.addEventListener('focus', function () { setHot(e, true); });
-      chip.addEventListener('blur', function () { setHot(e, false); });
-      if (!e.url) chip.addEventListener('click', function () { flash(e); });
-      e.chip = chip;
-      li.appendChild(chip);
-      chipList.appendChild(li);
-    });
-  alsoEl.textContent = ALSO_SERVICING.length
-    ? 'Also servicing ' + ALSO_SERVICING.slice(0, -1).join(', ') +
-      (ALSO_SERVICING.length > 1 ? ' and ' : '') + ALSO_SERVICING[ALSO_SERVICING.length - 1] + '.'
-    : '';
 
   /* ---- Arrival animation: once, when the map scrolls into view ---- */
   if (!reduceMotion && 'IntersectionObserver' in window) {
