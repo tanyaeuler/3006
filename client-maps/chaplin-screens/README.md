@@ -22,5 +22,5 @@ All settings are in the `EDIT HERE` block at the top of the script:
 - **Touch.** Tapping a pin shows the hop, then opens the page. Tapping a dot shows its card for a few seconds.
 - **Arrival.** Pins drop in once when the map scrolls into view, rippling out from head office. Skipped under `prefers-reduced-motion`.
 - **Labels.** Dot names sit under the dot, nudged left or right if a neighbour is in the way, and only go above when every spot below is blocked. The map tries a few placement orders and keeps the one that shows the most names, so all names fit at every width tested (320px up).
-- **Home base.** The Chaplin bowler hat (yellow, blue outline) marks where they're based, in place of a pin and label. It's traced as inline SVG (`hatSvg` in the script), so there's no image file to host. Its position is deliberately approximate, as the business is home based.
+- **Home base.** A black Chaplin-style bowler (round crown, ribbon band, curled brim) marks where they're based, in place of a pin and label. It is drawn as inline SVG (`hatSvg` in the script), so there's no image file to host. Its position is deliberately approximate, as the business is home based.
 - Tiles: Esri's keyless light-grey base, without labels. Leaflet 1.9.4 from unpkg with SRI hashes.
